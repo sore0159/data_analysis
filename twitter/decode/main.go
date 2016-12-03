@@ -27,6 +27,12 @@ func main() {
 		count += 1
 		if count == 1 {
 			log.Printf("Sample scanned TD:\n %+v\n", td)
+			t, err := td.UserSinceDate()
+			if err == nil {
+				log.Printf("Sample UserSinceDate: %s", t)
+			} else {
+				log.Println("Error parsing ", td.UserSince, ":", err)
+			}
 		}
 	}
 	if err := scanner.Err(); err != nil {

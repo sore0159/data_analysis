@@ -4,6 +4,7 @@ import (
 	"github.com/dghubble/go-twitter/twitter"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type TweetData struct {
@@ -20,7 +21,7 @@ type TweetData struct {
 	Words    []string
 }
 
-func ParseTweet(tweet *twitter.Tweet) (TweetData, bool) {
+func FromTweet(tweet *twitter.Tweet) (TweetData, bool) {
 	td := TweetData{}
 	if tweet.RetweetedStatus != nil {
 		return td, false
@@ -108,4 +109,11 @@ func FromCSV(line string) (TweetData, bool) {
 	}
 	td.Words = strings.Split(fields[10], " ")
 	return td, true
+}
+
+func (td TweetData) UserSinceDate() (time.Time, error) {
+	return time.Parse(time.RubyDate, td.UserSince)
+}
+func (td TweetData) TweetDate() (time.Time, error) {
+	return time.Parse(time.RubyDate, td.Time)
 }
