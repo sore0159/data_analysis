@@ -20,13 +20,13 @@ func main() {
 	scanner := bufio.NewScanner(f)
 	var count int
 	for scanner.Scan() {
-		td, ok := record.FromCVS(scanner.Text())
+		td, ok := record.FromCSV(scanner.Text())
 		if !ok {
 			continue
 		}
 		count += 1
 		if count == 1 {
-			log.Printf("Scanned TD: %+v\n", td)
+			log.Printf("Sample scanned TD:\n %+v\n", td)
 		}
 	}
 	if err := scanner.Err(); err != nil {

@@ -41,7 +41,7 @@ func (a *Aggregator) Close() {
 }
 
 func (a *Aggregator) AggregateData(td TweetData) {
-	fmt.Fprint(a.File, td.ToCVS())
+	fmt.Fprint(a.File, td.ToCSV())
 }
 func (p *Parser) ParseTweet(tweet *twitter.Tweet) (TweetData, bool) {
 	if td, ok := record.ParseTweet(tweet); ok {
