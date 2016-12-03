@@ -40,8 +40,8 @@ func main() {
 	}
 	d.R.Run()
 
-	fmt.Printf("Regression formula:\n%v\n", d.R.Formula)
-	fmt.Printf("Regression:\n%s\n", d.R)
+	fmt.Printf("Regression formula (N:%d):\n%v\n", l, d.R.Formula)
+	//	fmt.Printf("Regression:\n%s\n", d.R)
 }
 
 type Data struct {
