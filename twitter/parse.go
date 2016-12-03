@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/dghubble/go-twitter/twitter"
+	"os"
+	"time"
 )
 
 type TweetData struct {
@@ -10,7 +12,7 @@ type TweetData struct {
 }
 
 // ParseTweet is async
-func (h *Handler) ParseTweet(tweet *twitter.Tweet) (TweetData, bool) {
+func (p *Parser) ParseTweet(tweet *twitter.Tweet) (TweetData, bool) {
 	if tweet.RetweetedStatus != nil {
 		return TweetData{}, false
 	}
@@ -20,16 +22,38 @@ func (h *Handler) ParseTweet(tweet *twitter.Tweet) (TweetData, bool) {
 
 }
 
-// HandleParsed is channel-sequenced
-func (h *Handler) HandleParsed(td TweetData) {
-	fmt.Fprint(h.File, fmt.Sprintf("%d %s", h.Count, td.Text))
-	h.Count += 1
+// AggregateData is channel-sequenced
+func (a *Aggregator) AggregateData(td TweetData) {
+	fmt.Fprint(a.File, fmt.Sprintf("%d %s", a.Count, td.Text))
+	a.Count += 1
 }
 
-type AggregateData struct {
+type Parser struct{}
+
+func MakeParser() (Parser, error) {
+	return Parser{}, nil
+}
+func (p *Parser) Close() {
+}
+
+type Aggregator struct {
+	File  *os.File
 	Count int
 }
 
-func (a *AggregateData) Init() {
-	a.Count = 0
+func MakeAggregator() (Aggregator, error) {
+	now := time.Now()
+	fileName := fmt.Sprintf(DATA_DIR+"%d%02d%02d_tweets.txt", now.Year(), now.Month(), now.Day())
+	f, err := os.Create(fileName)
+	if err != nil {
+		return Aggregator{}, err
+	}
+	return Aggregator{
+		File:  f,
+		Count: 0,
+	}, nil
+}
+
+func (a *Aggregator) Close() {
+	a.File.Close()
 }

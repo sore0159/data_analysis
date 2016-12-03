@@ -16,8 +16,9 @@ func MakeStream(h *Handler) (*twitter.Stream, error) {
 	h.HandleDemux(&demux)
 
 	filterParams := &twitter.StreamFilterParams{
-		Language:      []string{"en"},
-		Track:         []string{"cat"},
+		Language: []string{"en"},
+		//Track:         []string{"cat"},
+		Locations:     []string{"-124.85,24.39,-66.88,49.38"},
 		StallWarnings: twitter.Bool(true),
 	}
 	stream, err := client.Streams.Filter(filterParams)

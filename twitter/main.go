@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -8,20 +9,28 @@ import (
 	"time"
 )
 
+const DATA_DIR = "DATA/"
+
 func main() {
-	log.Println("Making handler...")
+	logFile, err := os.OpenFile(DATA_DIR+"logs.txt", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0600)
+	defer logFile.Close()
+	fLog := func(args ...interface{}) {
+		log.Println(args...)
+		fmt.Fprintf(logFile, "%s %s\n", time.Now(), fmt.Sprint(args...))
+	}
+	fLog("Making handler...")
+	return
 	handler, err := MakeHandler()
 	if err != nil {
-		log.Println("HANDLER CREATION FAILURE: ", err)
+		fLog("HANDLER CREATION FAILURE: ", err)
 	}
-	log.Println("Starting stream...")
+	defer handler.Close()
+	fLog("Starting stream...")
 	stream, err := MakeStream(handler)
 	if err != nil {
-		handler.Close()
 		log.Fatal("STEAM CREATION FAILURE: ", err)
 	}
 
-	// Wait for SIGINT and SIGTERM (HIT CTRL-C)
 	ch := make(chan os.Signal)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 	ticker := time.Tick(time.Minute)
@@ -30,13 +39,13 @@ func main() {
 		case <-ch:
 			stream.Stop()
 			handler.Close()
-			log.Println("Signal Recieved: stopping stream...")
+			fLog("Signal Recieved: stopping stream...")
 			return
 		case <-ticker:
 			if stream.Messages == nil {
 				stream.Stop()
 				handler.Close()
-				log.Println("Early stream termination detected: stopping program...")
+				fLog("Early stream termination detected: stopping program...")
 				return
 			}
 		}

@@ -2,42 +2,49 @@ package main
 
 import (
 	"github.com/dghubble/go-twitter/twitter"
-	"os"
 )
 
+// Handler creates async calls to Parser for each tweet and provides a
+// dataPipe to re-sync Aggregator's proccessing of parsed tweet data
 type Handler struct {
-	File     *os.File
+	Parser
+	Aggregator
 	dataPipe chan TweetData
-	AggregateData
 }
 
-func (h *Handler) Close() {
-	h.File.Close()
-}
 func (h *Handler) HandleDemux(demux *twitter.SwitchDemux) {
-	demux.Tweet = h.HandleTweet
-}
-
-func (h *Handler) HandleTweet(tweet *twitter.Tweet) {
-	td, ok := h.ParseTweet(tweet)
-	if ok {
-		h.dataPipe <- td
+	go func() {
+		for {
+			h.Aggregator.AggregateData(<-h.dataPipe)
+		}
+	}()
+	demux.Tweet = func(tweet *twitter.Tweet) {
+		go func() {
+			td, ok := h.Parser.ParseTweet(tweet)
+			if ok {
+				h.dataPipe <- td
+			}
+		}()
 	}
 }
 
 func MakeHandler() (*Handler, error) {
-	h := &Handler{}
-	f, err := os.Create("data.txt")
+	p, err := MakeParser()
 	if err != nil {
 		return nil, err
 	}
-	h.File = f
-	h.dataPipe = make(chan TweetData)
-	h.AggregateData.Init()
-	go func() {
-		for {
-			h.HandleParsed(<-h.dataPipe)
-		}
-	}()
-	return h, nil
+	a, err := MakeAggregator()
+	if err != nil {
+		return nil, err
+	}
+	return &Handler{
+		Parser:     p,
+		Aggregator: a,
+		dataPipe:   make(chan TweetData),
+	}, nil
+}
+
+func (h *Handler) Close() {
+	h.Parser.Close()
+	h.Aggregator.Close()
 }
