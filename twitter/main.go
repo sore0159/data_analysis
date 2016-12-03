@@ -26,28 +26,26 @@ func main() {
 	handler, err := MakeHandler()
 	if err != nil {
 		fLog("HANDLER CREATION FAILURE: ", err)
+		return
 	}
 	defer handler.Close()
 	fLog("Starting stream...")
 	stream, err := MakeStream(handler)
 	if err != nil {
-		log.Fatal("STEAM CREATION FAILURE: ", err)
+		fLog("STEAM CREATION FAILURE: ", err)
+		return
 	}
-
+	defer stream.Stop()
 	ch := make(chan os.Signal)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 	ticker := time.Tick(time.Minute)
 	for {
 		select {
 		case <-ch:
-			stream.Stop()
-			handler.Close()
 			fLog("Signal Recieved: stopping stream...")
 			return
 		case <-ticker:
 			if stream.Messages == nil {
-				stream.Stop()
-				handler.Close()
 				fLog("Early stream termination detected: stopping program...")
 				return
 			}
