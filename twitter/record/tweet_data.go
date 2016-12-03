@@ -1,7 +1,9 @@
 package record
 
 import (
+	"bufio"
 	"github.com/dghubble/go-twitter/twitter"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -116,4 +118,22 @@ func (td TweetData) UserSinceDate() (time.Time, error) {
 }
 func (td TweetData) TweetDate() (time.Time, error) {
 	return time.Parse(time.RubyDate, td.Time)
+}
+
+func FromCSVFile(fileName string) ([]TweetData, error) {
+	f, err := os.Open(fileName)
+	if err != nil {
+		return nil, err
+	}
+	var list []TweetData
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		if td, ok := FromCSV(scanner.Text()); ok {
+			list = append(list, td)
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+	return list, nil
 }

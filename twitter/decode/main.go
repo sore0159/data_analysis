@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"log"
 	"mule/data_analysis/twitter/record"
 	"os"
@@ -12,25 +11,18 @@ func main() {
 		log.Println("Usage: decode FILENAME")
 		return
 	}
-	f, err := os.Open(os.Args[1])
+	list, err := record.FromCSVFile(os.Args[1])
 	if err != nil {
-		log.Println("Error opening file: ", err)
+		log.Println("FILE READ ERROR:", err)
 		return
 	}
-	scanner := bufio.NewScanner(f)
-	var count int
-	var lastTD record.TweetData
-	for scanner.Scan() {
-		td, ok := record.FromCSV(scanner.Text())
-		if !ok {
-			continue
-		}
-		lastTD = td
-		count += 1
+	l := len(list)
+	if l == 0 {
+		log.Println("No values scanned!")
+		return
 	}
-	if err := scanner.Err(); err != nil {
-		log.Println("Scanner error!  ", err)
-	}
+	log.Println(l, "values scanned.")
+	lastTD := list[l-1]
 	log.Printf("Last scanned TD:\n %+v\n", lastTD)
 	t, err := lastTD.UserSinceDate()
 	if err == nil {
@@ -38,6 +30,4 @@ func main() {
 	} else {
 		log.Println("Error parsing ", lastTD.UserSince, ":", err)
 	}
-
-	log.Printf("Exiting: %d successful data reads!\n", count)
 }
