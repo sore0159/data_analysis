@@ -6,9 +6,9 @@ import (
 )
 
 func MakeStream(h *Handler) (*twitter.Stream, error) {
+	// Key/Secret/Tokens all from global constants in non-shared file
 	config := oauth1.NewConfig(CONSUMER_KEY, CONSUMER_SECRET)
 	token := oauth1.NewToken(ACCESS_TOKEN, ACCESS_SECRET)
-	// OAuth1 http.Client will automatically authorize Requests
 	httpClient := config.Client(oauth1.NoContext, token)
 	client := twitter.NewClient(httpClient)
 
@@ -17,7 +17,7 @@ func MakeStream(h *Handler) (*twitter.Stream, error) {
 
 	filterParams := &twitter.StreamFilterParams{
 		Language: []string{"en"},
-		//Track:         []string{"cat"},
+		// These coords should bound the continential United States
 		Locations:     []string{"-124.85,24.39,-66.88,49.38"},
 		StallWarnings: twitter.Bool(true),
 	}

@@ -3,21 +3,49 @@ package main
 import (
 	"fmt"
 	"github.com/dghubble/go-twitter/twitter"
+	"mule/data_analysis/twitter/record"
+	"os"
+	"time"
 )
 
-// ParseTweet is async
-func (p *Parser) ParseTweet(tweet *twitter.Tweet) (TweetData, bool) {
-	if tweet.RetweetedStatus != nil {
-		return TweetData{}, false
-	}
-	return TweetData{
-		Text: fmt.Sprintf("(%s) %s\n%s\n\n", tweet.User.Name, tweet.CreatedAt, tweet.Text),
-	}, true
-
+type TweetData struct {
+	record.TweetData
 }
 
-// AggregateData is channel-sequenced
+type Parser struct{}
+
+func MakeParser() (Parser, error) {
+	return Parser{}, nil
+}
+func (p *Parser) Close() {
+}
+
+type Aggregator struct {
+	File *os.File
+}
+
+func MakeAggregator() (Aggregator, error) {
+	now := time.Now()
+	fileName := fmt.Sprintf(DATA_DIR+"%d%02d%02d_tweets.txt", now.Year(), now.Month(), now.Day())
+	f, err := os.Create(fileName)
+	if err != nil {
+		return Aggregator{}, err
+	}
+	return Aggregator{
+		File: f,
+	}, nil
+}
+
+func (a *Aggregator) Close() {
+	a.File.Close()
+}
+
 func (a *Aggregator) AggregateData(td TweetData) {
-	fmt.Fprint(a.File, fmt.Sprintf("%d %s", a.Count, td.Text))
-	a.Count += 1
+	fmt.Fprint(a.File, td.ToCVS())
+}
+func (p *Parser) ParseTweet(tweet *twitter.Tweet) (TweetData, bool) {
+	if td, ok := record.ParseTweet(tweet); ok {
+		return TweetData{td}, true
+	}
+	return TweetData{}, false
 }

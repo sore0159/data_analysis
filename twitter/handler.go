@@ -12,6 +12,9 @@ type Handler struct {
 	dataPipe chan TweetData
 }
 
+// HandleDemux sets up the flow of information.  demux operates in
+// sequence: HandleDemux creates goroutines to allow async parsing
+// of tweets, with one goroutine monitering the parsed data
 func (h *Handler) HandleDemux(demux *twitter.SwitchDemux) {
 	go func() {
 		for {
