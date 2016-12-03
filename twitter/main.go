@@ -13,13 +13,16 @@ const DATA_DIR = "DATA/"
 
 func main() {
 	logFile, err := os.OpenFile(DATA_DIR+"logs.txt", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0600)
+	if err != nil {
+		log.Println("Cannot create/open logfile: ", err)
+		return
+	}
 	defer logFile.Close()
 	fLog := func(args ...interface{}) {
 		log.Println(args...)
 		fmt.Fprintf(logFile, "%s %s\n", time.Now(), fmt.Sprint(args...))
 	}
 	fLog("Making handler...")
-	return
 	handler, err := MakeHandler()
 	if err != nil {
 		fLog("HANDLER CREATION FAILURE: ", err)
