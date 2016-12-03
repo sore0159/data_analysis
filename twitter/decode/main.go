@@ -19,24 +19,25 @@ func main() {
 	}
 	scanner := bufio.NewScanner(f)
 	var count int
+	var lastTD record.TweetData
 	for scanner.Scan() {
 		td, ok := record.FromCSV(scanner.Text())
 		if !ok {
 			continue
 		}
+		lastTD = td
 		count += 1
-		if count == 1 {
-			log.Printf("Sample scanned TD:\n %+v\n", td)
-			t, err := td.UserSinceDate()
-			if err == nil {
-				log.Printf("Sample UserSinceDate: %s", t)
-			} else {
-				log.Println("Error parsing ", td.UserSince, ":", err)
-			}
-		}
 	}
 	if err := scanner.Err(); err != nil {
 		log.Println("Scanner error!  ", err)
 	}
+	log.Printf("Last scanned TD:\n %+v\n", lastTD)
+	t, err := lastTD.UserSinceDate()
+	if err == nil {
+		log.Printf("Sample UserSinceDate: %s", t)
+	} else {
+		log.Println("Error parsing ", lastTD.UserSince, ":", err)
+	}
+
 	log.Printf("Exiting: %d successful data reads!\n", count)
 }
