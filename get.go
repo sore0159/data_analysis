@@ -12,7 +12,16 @@ func GetTweets() ([]record.TweetData, error) {
 	if len(os.Args) < 2 {
 		return nil, errors.New("Usage: data_analysis FILENAME")
 	}
-	return record.FromCSVFile(os.Args[1])
+	list, err := record.FromCSVFile(os.Args[1])
+	if err != nil {
+		return nil, err
+	}
+	if l := len(list); l == 0 {
+		return nil, errors.New("No values scanned!")
+	} else if l < 5 {
+		return nil, errors.New("Not enough values scanned for analysis")
+	}
+	return list, nil
 }
 
 type Data struct {

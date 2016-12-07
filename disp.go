@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"github.com/gonum/matrix/mat64"
+	"github.com/sajari/regression"
+
 	"mule/data_analysis/maths"
 )
 
@@ -40,4 +42,12 @@ func DispCov(vs maths.Vars, mat *mat64.SymDense) {
 		fmt.Printf("%s  %s\n", strings.Join(parts, "  "), vs[i].Name)
 	}
 
+}
+
+func DispReg(r *regression.Regression) {
+	fmt.Printf("Regression formula:\n%v\n", r.Formula)
+	fmt.Printf("COEF: %v, %v, %v, %v, %v, %v\n", r.Coeff(0), r.Coeff(1), r.Coeff(2), r.Coeff(3), r.Coeff(4), r.Coeff(5))
+	fmt.Printf("R2: %v\n", r.R2)
+	//	fmt.Printf("Regression:\n%s\n", d.R)
+	fmt.Println("\n")
 }
