@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/gonum/matrix/mat64"
 	"github.com/sajari/regression"
 
 	"mule/data_analysis/maths"
+	pl "mule/data_analysis/plot"
 )
 
 func DispCov(vs maths.Vars, mat *mat64.SymDense) {
@@ -50,4 +52,12 @@ func DispReg(r *regression.Regression) {
 	fmt.Printf("R2: %v\n", r.R2)
 	//	fmt.Printf("Regression:\n%s\n", d.R)
 	fmt.Println("\n")
+}
+
+func ScatterPng(vX, vY *maths.Var, cf float64) error {
+	f, err := os.Create(fmt.Sprintf("scatter_%s_%s.png", vX.Name, vY.Name))
+	if err != nil {
+		return err
+	}
+	return pl.MakeScatter(f, vX, vY, cf)
 }

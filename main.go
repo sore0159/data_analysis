@@ -43,4 +43,11 @@ func main() {
 	log.Println("Matrix calculated!")
 	DispCov(vars, cov)
 
+	log.Println("Making scatterplot...")
+	err = ScatterPng(vars[2], vars[0], r.Coeff(2))
+	if err != nil {
+		log.Println("Plot error: ", err)
+		return
+	}
+	log.Println("Scatterplot complete!")
 }
