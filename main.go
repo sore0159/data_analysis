@@ -27,15 +27,18 @@ func main() {
 		return
 	}
 	log.Printf("Data parsed! (%d data points)\n", len(vars[0].Data))
+	return
 
 	log.Println("Normalizing...")
 	vars.Normalize()
-	r := vars.Regression(0)
 
-	log.Println("Running regression...")
-	r.Run()
-	log.Println("Regression complete!")
-	DispReg(r)
+	/*
+		r := vars.Regression(0)
+		log.Println("Running regression...")
+		r.Run()
+		log.Println("Regression complete!")
+		DispReg(r)
+	*/
 
 	log.Println("Calculating matrix...")
 	mat := vars.Matrix()
@@ -43,11 +46,19 @@ func main() {
 	log.Println("Matrix calculated!")
 	DispCov(vars, cov)
 
-	log.Println("Making scatterplot...")
-	err = ScatterPng(vars[2], vars[0], r.Coeff(2))
-	if err != nil {
-		log.Println("Plot error: ", err)
-		return
+	log.Println("Making scatterplots...")
+	for i, vX := range vars {
+		for j, vY := range vars {
+			if i >= j {
+				continue
+			}
+			log.Println("Plotting", vX.Name, "and", vY.Name+"...")
+			err = ScatterPng(vX, vY, 0)
+			if err != nil {
+				log.Println(vX.Name, " ", vY.Name, " plot error: ", err)
+				return
+			}
+		}
 	}
-	log.Println("Scatterplot complete!")
+	log.Println("Scatterplots complete!")
 }

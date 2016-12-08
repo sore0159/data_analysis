@@ -19,6 +19,7 @@ type City struct {
 type Cities []City
 
 // Closest returns the closest city, and the distance in km
+// pt must be Lat, Long
 func (cities Cities) Closest(pt [2]float64) (City, float64) {
 	var best City
 	var dist float64

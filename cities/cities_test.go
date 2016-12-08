@@ -17,7 +17,7 @@ func TestTwo(t *testing.T) {
 	if len(c) != 100 {
 		t.Fatal("Len C: ", len(c))
 	}
-	pt := [2]float64{75, 100}
+	pt := [2]float64{45.47711342, -75.52129503}
 	ct, d := c.Closest(pt)
 	log.Println("Closest to ", pt, ":\n", ct, "(", d, ")")
 }
