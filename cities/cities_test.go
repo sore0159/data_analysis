@@ -10,7 +10,7 @@ func TestOne(t *testing.T) {
 }
 
 func TestTwo(t *testing.T) {
-	c, err := FromFile("cities.json", 100)
+	c, err := FromFile("../DATA/cities.json", 100)
 	if err != nil {
 		t.Fatal(err)
 	}

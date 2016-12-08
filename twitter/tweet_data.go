@@ -1,4 +1,4 @@
-package record
+package twitter
 
 import (
 	"bufio"
@@ -11,16 +11,18 @@ import (
 
 type TweetData struct {
 	// Poster Data
-	UserID     int64
-	UserSince  string
-	Followers  int
-	Friends    int
-	TweetCount int
+	UserID        int64
+	UserSince     string
+	UserSinceDate time.Time
+	Followers     int
+	Friends       int
+	TweetCount    int
 	// Tweet Data
-	Time     string
-	Location [2]float64
-	Links    int
-	Words    []string
+	Time      string
+	TweetDate time.Time
+	Location  [2]float64
+	Links     int
+	Words     []string
 }
 
 func FromTweet(tweet *twitter.Tweet) (TweetData, bool) {
@@ -36,11 +38,13 @@ func FromTweet(tweet *twitter.Tweet) (TweetData, bool) {
 	}
 	td.UserID = tweet.User.ID
 	td.UserSince = tweet.User.CreatedAt
+	td.UserSinceDate, _ = time.Parse(time.RubyDate, td.UserSince)
 	td.Followers = tweet.User.FollowersCount
 	td.Friends = tweet.User.FriendsCount
 	td.TweetCount = tweet.User.StatusesCount
 	//
 	td.Time = tweet.CreatedAt
+	td.TweetDate, _ = time.Parse(time.RubyDate, td.Time)
 	td.Location = tweet.Coordinates.Coordinates
 	//
 	fields := strings.Fields(tweet.Text)
@@ -90,6 +94,9 @@ func FromCSV(line string) (TweetData, bool) {
 		return TweetData{}, false
 	}
 	td.UserSince = fields[2]
+	if td.UserSinceDate, err = time.Parse(time.RubyDate, td.UserSince); err != nil {
+		return TweetData{}, false
+	}
 	if td.Followers, err = strconv.Atoi(fields[3]); err != nil {
 		return TweetData{}, false
 	}
@@ -100,6 +107,9 @@ func FromCSV(line string) (TweetData, bool) {
 		return TweetData{}, false
 	}
 	td.Time = fields[6]
+	if td.TweetDate, err = time.Parse(time.RubyDate, td.Time); err != nil {
+		return TweetData{}, false
+	}
 	if td.Location[0], err = strconv.ParseFloat(fields[7], 64); err != nil {
 		return TweetData{}, false
 	}
@@ -111,13 +121,6 @@ func FromCSV(line string) (TweetData, bool) {
 	}
 	td.Words = strings.Split(fields[10], " ")
 	return td, true
-}
-
-func (td TweetData) UserSinceDate() (time.Time, error) {
-	return time.Parse(time.RubyDate, td.UserSince)
-}
-func (td TweetData) TweetDate() (time.Time, error) {
-	return time.Parse(time.RubyDate, td.Time)
 }
 
 func FromCSVFile(fileName string) ([]TweetData, error) {

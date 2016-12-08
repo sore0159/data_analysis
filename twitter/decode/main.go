@@ -2,7 +2,7 @@ package main
 
 import (
 	"log"
-	"mule/data_analysis/twitter/record"
+	tw "mule/data_analysis/twitter"
 	"os"
 )
 
@@ -11,7 +11,7 @@ func main() {
 		log.Println("Usage: decode FILENAME")
 		return
 	}
-	list, err := record.FromCSVFile(os.Args[1])
+	list, err := tw.FromCSVFile(os.Args[1])
 	if err != nil {
 		log.Println("FILE READ ERROR:", err)
 		return
@@ -24,10 +24,6 @@ func main() {
 	log.Println(l, "values scanned.")
 	lastTD := list[l-1]
 	log.Printf("Last scanned TD:\n %+v\n", lastTD)
-	t, err := lastTD.UserSinceDate()
-	if err == nil {
-		log.Printf("Sample UserSinceDate: %s", t)
-	} else {
-		log.Println("Error parsing ", lastTD.UserSince, ":", err)
-	}
+	t := lastTD.UserSinceDate
+	log.Printf("Sample UserSinceDate: %s", t)
 }

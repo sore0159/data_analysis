@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gonum/matrix/mat64"
 	"github.com/sajari/regression"
@@ -11,6 +12,8 @@ import (
 	"mule/data_analysis/maths"
 	pl "mule/data_analysis/plot"
 )
+
+const DATA_DIR = "DATA/"
 
 func DispCov(vs maths.Vars, mat *mat64.SymDense) {
 	for _, v := range vs {
@@ -55,7 +58,9 @@ func DispReg(r *regression.Regression) {
 }
 
 func ScatterPng(vX, vY *maths.Var, cf float64) error {
-	f, err := os.Create(fmt.Sprintf("scatter_%s_%s.png", vX.Name, vY.Name))
+	now := time.Now()
+	timeStr := now.Format("060102_1504_")
+	f, err := os.Create(fmt.Sprintf("%s%sscatter_%s_%s.png", DATA_DIR, timeStr, vX.Name, vY.Name))
 	if err != nil {
 		return err
 	}

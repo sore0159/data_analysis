@@ -5,14 +5,17 @@ import (
 	"os"
 
 	"mule/data_analysis/cities"
-	"mule/data_analysis/twitter/record"
+	tw "mule/data_analysis/twitter"
 )
 
-func GetTweets() ([]record.TweetData, error) {
+func GetTweets() ([]tw.TweetData, error) {
+	var fName string
 	if len(os.Args) < 2 {
-		return nil, errors.New("Usage: data_analysis FILENAME")
+		fName = DATA_DIR + "little_data.txt"
+	} else {
+		fName = os.Args[1]
 	}
-	list, err := record.FromCSVFile(os.Args[1])
+	list, err := tw.FromCSVFile(fName)
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +32,7 @@ type Data struct {
 }
 
 func GetData() (*Data, error) {
-	cities, err := cities.FromFile("cities/cities.json", 100)
+	cities, err := cities.FromFile(DATA_DIR+"cities.json", 100)
 	if err != nil {
 		return nil, err
 	}

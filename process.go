@@ -1,11 +1,13 @@
 package main
 
 import (
+	"log"
+
 	"mule/data_analysis/maths"
-	"mule/data_analysis/twitter/record"
+	tw "mule/data_analysis/twitter"
 )
 
-func (d *Data) ProcessTweets(tws []record.TweetData) (maths.Vars, error) {
+func (d *Data) ProcessTweets(tws []tw.TweetData) (maths.Vars, error) {
 	dV := maths.NewVar("Followers")
 	iV1 := maths.NewVar("Links")
 	iV2 := maths.NewVar("TweetCount")
@@ -16,7 +18,13 @@ func (d *Data) ProcessTweets(tws []record.TweetData) (maths.Vars, error) {
 	for _, v := range vars {
 		v.Data = make([]float64, 0, len(tws))
 	}
+	var robots int
 	for _, t := range tws {
+		if !tw.Human(t) {
+			robots += 1
+			log.Printf("(%d)NOT HUMAN:  %+v\n", robots, t)
+			continue
+		}
 		ct, dist := d.C.Closest(t.Location)
 
 		dV.Data = append(dV.Data, float64(t.Followers))

@@ -3,13 +3,13 @@ package main
 import (
 	"fmt"
 	"github.com/dghubble/go-twitter/twitter"
-	"mule/data_analysis/twitter/record"
+	tw "mule/data_analysis/twitter"
 	"os"
 	"time"
 )
 
 type TweetData struct {
-	record.TweetData
+	tw.TweetData
 }
 
 type Parser struct{}
@@ -44,7 +44,7 @@ func (a *Aggregator) AggregateData(td TweetData) {
 	fmt.Fprint(a.File, td.ToCSV())
 }
 func (p *Parser) ParseTweet(tweet *twitter.Tweet) (TweetData, bool) {
-	if td, ok := record.FromTweet(tweet); ok {
+	if td, ok := tw.FromTweet(tweet); ok {
 		return TweetData{td}, true
 	}
 	return TweetData{}, false
