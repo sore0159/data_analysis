@@ -1,9 +1,10 @@
 body { 
-        font-family: 'Droid Serif'; 
+        font-family: "Times New Roman", Serif; 
 }
 h1, h2, h3 {
-        font-family: 'Yanone Kaffeesatz';
+        font-family: Tahoma, Geneva, sans-serif;
         font-weight: normal;
 }
-.remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
-  
+.remark-code, .remark-inline-code { 
+        font-family: "Courier New", Courier, Monospace;
+}

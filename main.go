@@ -27,7 +27,6 @@ func main() {
 		return
 	}
 	log.Printf("Data parsed! (%d data points)\n", len(vars[0].Data))
-	return
 
 	log.Println("Normalizing...")
 	vars.Normalize()

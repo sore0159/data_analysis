@@ -41,7 +41,7 @@ func main() {
 	select {
 	case <-ch:
 		fmt.Println("")
-		log.Println("Kill signal recieved, stopping server...")
+		log.Println("Termination signal recieved, stopping server...")
 	case <-dn:
 		fmt.Println("")
 		log.Println("Exiting program...")

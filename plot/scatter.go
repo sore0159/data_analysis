@@ -46,8 +46,9 @@ func MakeScatter(w io.Writer, vX, vY *maths.Var, cf float64) error { //(io.Write
 	} else {
 		p.Title.Text = fmt.Sprintf("Normalized Data (N %d)", len(vX.Data))
 	}
-	//
-	wr, err := p.WriterTo(500, 500, "png")
+	wr, err := p.WriterTo(375, 375, "png")
+	// not in pixels!  "vg.Length" units
+	// 375vg == 500px
 	if err != nil {
 		return err
 	}
