@@ -7,7 +7,14 @@ import (
 )
 
 func main() {
+	var doReg, doScatter, doHist bool
+
 	log.Println("Starting up...")
+	w, err := GetWriter()
+	if err != nil {
+		log.Println("Get Writer failure: ", err)
+		return
+	}
 	d, err := GetData()
 	if err != nil {
 		log.Println("Data load failure: ", err)
@@ -31,22 +38,21 @@ func main() {
 	log.Println("Normalizing...")
 	vars.Normalize()
 
-	var do func()
-	do = func() {
+	if doReg {
 		r := vars.Regression(2)
 		log.Println("Running regression...")
 		r.Run()
 		log.Println("Regression complete!")
-		DispReg(r)
+		DispReg(w, r)
 	}
 
 	log.Println("Calculating matrix...")
 	mat := vars.Matrix()
 	cov := maths.Cov(mat)
 	log.Println("Matrix calculated!")
-	DispCov(vars, cov)
+	DispCov(w, vars, cov)
 
-	do = func() {
+	if doScatter {
 		log.Println("Making scatterplots...")
 		for i, vX := range vars {
 			for j, vY := range vars {
@@ -62,9 +68,8 @@ func main() {
 		}
 		log.Println("Scatterplots complete!")
 	}
-	do()
 
-	do = func() {
+	if doHist {
 		log.Println("Making histograms...")
 		for _, vX := range vars {
 			log.Println("Plotting", vX.Name+"...")
@@ -73,7 +78,6 @@ func main() {
 				log.Println(vX.Name, " histogram error: ", err)
 			}
 		}
+		log.Println("Histograms complete!")
 	}
-	log.Println("Histograms complete!")
-	do()
 }

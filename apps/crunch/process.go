@@ -56,7 +56,6 @@ func (d *Data) ProcessTweets2(tws []tw.TweetData) (maths.Vars, error) {
 		//if t.TweetCount > 200000 || t.Followers > 60000 {
 		//if t.TweetCount > 70000 || t.Followers > 10000 {
 		if t.TweetCount > 20000 || t.Followers > 2000 {
-		} else {
 			continue
 		}
 		days := math.Floor(t.TweetDate.Sub(t.UserSinceDate).Hours() / 24.0)
