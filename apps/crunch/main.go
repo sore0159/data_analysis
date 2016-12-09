@@ -21,7 +21,7 @@ func main() {
 	log.Println("Data loaded!")
 
 	log.Println("Parsing data...")
-	vars, err := d.ProcessTweets(list)
+	vars, err := d.ProcessTweets2(list)
 	if err != nil {
 		log.Println("Error processing tweets: ", err)
 		return
@@ -31,13 +31,14 @@ func main() {
 	log.Println("Normalizing...")
 	vars.Normalize()
 
-	/*
-		r := vars.Regression(0)
+	var do func()
+	do = func() {
+		r := vars.Regression(2)
 		log.Println("Running regression...")
 		r.Run()
 		log.Println("Regression complete!")
 		DispReg(r)
-	*/
+	}
 
 	log.Println("Calculating matrix...")
 	mat := vars.Matrix()
@@ -45,19 +46,34 @@ func main() {
 	log.Println("Matrix calculated!")
 	DispCov(vars, cov)
 
-	log.Println("Making scatterplots...")
-	for i, vX := range vars {
-		for j, vY := range vars {
-			if i >= j {
-				continue
+	do = func() {
+		log.Println("Making scatterplots...")
+		for i, vX := range vars {
+			for j, vY := range vars {
+				if i >= j {
+					continue
+				}
+				log.Println("Plotting", vX.Name, "and", vY.Name+"...")
+				err = ScatterPng(vX, vY, 0)
+				if err != nil {
+					log.Println(vX.Name, " ", vY.Name, " plot error: ", err)
+				}
 			}
-			log.Println("Plotting", vX.Name, "and", vY.Name+"...")
-			err = ScatterPng(vX, vY, 0)
+		}
+		log.Println("Scatterplots complete!")
+	}
+	do()
+
+	do = func() {
+		log.Println("Making histograms...")
+		for _, vX := range vars {
+			log.Println("Plotting", vX.Name+"...")
+			err = HistPng(vX)
 			if err != nil {
-				log.Println(vX.Name, " ", vY.Name, " plot error: ", err)
-				return
+				log.Println(vX.Name, " histogram error: ", err)
 			}
 		}
 	}
-	log.Println("Scatterplots complete!")
+	log.Println("Histograms complete!")
+	do()
 }

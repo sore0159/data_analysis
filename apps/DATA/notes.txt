@@ -1,0 +1,13 @@
+// Unfiltered
+161209_0654_hist
+//if t.TweetCount > 400000 || t.Followers > 1000000 {
+161209_0700_hist
+//if t.TweetCount > 200000 || t.Followers > 60000 {
+161209_0706_hist
+//if t.TweetCount > 70000 || t.Followers > 10000 {
+161209_0709_hist
+if t.TweetCount > 20000 || t.Followers > 2000 {
+161209_0720_hist
+if !(t.TweetCount > 20000 || t.Followers > 2000) {
+161209_0729_hist
+

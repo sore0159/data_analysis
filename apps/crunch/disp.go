@@ -66,3 +66,13 @@ func ScatterPng(vX, vY *maths.Var, cf float64) error {
 	}
 	return pl.MakeScatter(f, vX, vY, cf)
 }
+
+func HistPng(vX *maths.Var) error {
+	now := time.Now()
+	timeStr := now.Format("060102_1504_")
+	f, err := os.Create(fmt.Sprintf("%simg/%shist_%s.png", DATA_DIR, timeStr, vX.Name))
+	if err != nil {
+		return err
+	}
+	return pl.MakeHist(f, vX)
+}

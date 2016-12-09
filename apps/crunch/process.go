@@ -1,6 +1,10 @@
 package main
 
 import (
+	//"fmt"
+	//"log"
+
+	"math"
 	"mule/data_analysis/maths"
 	tw "mule/data_analysis/twitter"
 )
@@ -35,6 +39,30 @@ func (d *Data) ProcessTweets(tws []tw.TweetData) (maths.Vars, error) {
 		iV3.Data = append(iV3.Data, float64(len(t.Words)))
 		iV4.Data = append(iV4.Data, float64(dist))
 		iV5.Data = append(iV5.Data, float64(ct.Pop))
+	}
+	return vars, nil
+}
+
+func (d *Data) ProcessTweets2(tws []tw.TweetData) (maths.Vars, error) {
+	v1 := maths.NewVar("TweetCount")
+	v2 := maths.NewVar("Account Age in Days")
+	v3 := maths.NewVar("Followers")
+	vars := maths.Vars([]*maths.Var{v1, v2, v3})
+	for _, v := range vars {
+		v.Data = make([]float64, 0, len(tws))
+	}
+	for _, t := range tws {
+		//if t.TweetCount > 400000 || t.Followers > 1000000 {
+		//if t.TweetCount > 200000 || t.Followers > 60000 {
+		//if t.TweetCount > 70000 || t.Followers > 10000 {
+		if t.TweetCount > 20000 || t.Followers > 2000 {
+		} else {
+			continue
+		}
+		days := math.Floor(t.TweetDate.Sub(t.UserSinceDate).Hours() / 24.0)
+		v1.Data = append(v1.Data, float64(t.TweetCount))
+		v2.Data = append(v2.Data, days)
+		v3.Data = append(v3.Data, float64(t.Followers))
 	}
 	return vars, nil
 }

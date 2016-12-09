@@ -13,7 +13,7 @@ import (
 	//"github.com/gonum/plot/vg/draw"
 )
 
-func MakeScatter(w io.Writer, vX, vY *maths.Var, cf float64) error { //(io.WriterTo, error) {
+func MakeScatter(w io.Writer, vX, vY *maths.Var, cf float64) error {
 	pts := make(plotter.XYs, len(vX.Data))
 	for i, x := range vX.Data {
 		pts[i].X = x
