@@ -60,7 +60,7 @@ func DispReg(r *regression.Regression) {
 func ScatterPng(vX, vY *maths.Var, cf float64) error {
 	now := time.Now()
 	timeStr := now.Format("060102_1504_")
-	f, err := os.Create(fmt.Sprintf("%s%sscatter_%s_%s.png", DATA_DIR, timeStr, vX.Name, vY.Name))
+	f, err := os.Create(fmt.Sprintf("%simg/%sscatter_%s_%s.png", DATA_DIR, timeStr, vX.Name, vY.Name))
 	if err != nil {
 		return err
 	}
