@@ -58,6 +58,7 @@ func FromFile(fileName string, max int) (Cities, error) {
 
 // Credit http://www.movable-type.co.uk/scripts/latlong.html
 // And presumably some guy named Haversine
+// p1 and p2 must be {Lat, Long}
 func Haversine(p1, p2 [2]float64) float64 {
 	const R = 6371 // kilometers
 	lat1, lat2 := ToRad(p1[0]), ToRad(p2[0])

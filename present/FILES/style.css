@@ -1,10 +1,32 @@
 body { 
         font-family: "Times New Roman", Serif; 
+        color: #000044;
 }
 h1, h2, h3 {
         font-family: Tahoma, Geneva, sans-serif;
         font-weight: normal;
+        padding:0;margin:0;
+        margin-top: 20px;
+        color: #000044;
+        font-size: small;
+}
+a {
+        color: #0000FF;
 }
 .remark-code, .remark-inline-code { 
         font-family: "Courier New", Courier, Monospace;
+}
+
+.footer {
+        font-size: small;
+        text-align: left;
+        position: absolute;
+        bottom: 15px;
+}
+.biggen {
+        font-size: x-large;
+        margin:0px;padding:0px;
+}
+sup {
+        color: #0000FF;
 }
