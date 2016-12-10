@@ -40,6 +40,17 @@ func main() {
 	cov := maths.Cov(mat)
 	DispCov(cfg, vars, cov)
 
+	if cfg.DoHist {
+		log.Println("Making histograms...")
+		for _, vX := range vars {
+			log.Println("Plotting", vX.Name+"...")
+			err = HistPng(cfg, vX)
+			if err != nil {
+				log.Println(vX.Name, " histogram error: ", err)
+			}
+		}
+		log.Println("Histograms complete!")
+	}
 	if cfg.DoReg {
 		err = TestReg(cfg, vars)
 		if err != nil {
@@ -60,17 +71,6 @@ func main() {
 			}
 		}
 		log.Println("Scatterplots complete!")
-	}
-	if cfg.DoHist {
-		log.Println("Making histograms...")
-		for _, vX := range vars {
-			log.Println("Plotting", vX.Name+"...")
-			err = HistPng(cfg, vX)
-			if err != nil {
-				log.Println(vX.Name, " histogram error: ", err)
-			}
-		}
-		log.Println("Histograms complete!")
 	}
 
 	exec.Command("say", "Your program is complete!").Start()

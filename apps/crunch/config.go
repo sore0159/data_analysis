@@ -56,7 +56,7 @@ func GetConfig() (c Config) {
 	if c.Log {
 		f, err := os.OpenFile(c.DataDir+"crunch_logs.txt", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0600)
 		if err == nil {
-			c.Output = f
+			c.Output = io.MultiWriter(f, os.Stdout)
 		} else {
 			log.Println("Unable to open crunch logfile: using stdout. Err:", err)
 			c.Log = false

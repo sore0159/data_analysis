@@ -11,3 +11,13 @@ if t.TweetCount > 20000 || t.Followers > 2000 {
 if !(t.TweetCount > 20000 || t.Followers > 2000) {
 161209_0729_hist
 
+
+
+TODO
+
+Error bars
+Hypothesis Test(?)
+Residual explanation
+
+Presentation
+
