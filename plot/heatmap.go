@@ -18,8 +18,8 @@ func MakeHeat(w io.Writer, vX, vY, vZ *maths.Var) error {
 	if err != nil {
 		return err
 	}
-	p.X.Label.Text = fmt.Sprintf("%s (m: %.2f, std: %.2f)", vX.Name, vX.Mean, vX.STD)
-	p.Y.Label.Text = fmt.Sprintf("%s (m: %.2f std: %.2f)", vY.Name, vY.Mean, vY.STD)
+	p.X.Label.Text = fmt.Sprintf("%s (m: %.2f, std: %.2f)", vX.Name, vX.OldMean, vX.OldSTD)
+	p.Y.Label.Text = fmt.Sprintf("%s (m: %.2f std: %.2f)", vY.Name, vY.OldMean, vY.OldSTD)
 	p.Title.Text = fmt.Sprintf("Normalized Data (N %d)", len(vX.Data))
 	p.Add(plotter.NewGrid())
 

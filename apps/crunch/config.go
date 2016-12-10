@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -65,4 +66,26 @@ func GetConfig() (c Config) {
 		c.Output = os.Stdout
 	}
 	return c
+}
+
+func DispCfg(c Config) {
+	fmt.Printf("Using data dir %s\n", c.DataDir)
+	if c.DoReg || c.DoHist || c.DoScatter {
+		parts := make([]string, 0, 2)
+		if c.DoReg {
+			parts = append(parts, "linear regression calculations")
+		}
+		if c.DoHist {
+			parts = append(parts, "histogram plots")
+		}
+		if c.DoScatter {
+			parts = append(parts, "scatter plots")
+		}
+		fmt.Printf("Performing: %s\n", strings.Join(parts, ", "))
+	} else {
+		fmt.Println("No heavy operations requested")
+	}
+	if c.Log {
+		fmt.Println("Results being logged.")
+	}
 }

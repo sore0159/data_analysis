@@ -13,7 +13,7 @@ import (
 	//"github.com/gonum/plot/vg/draw"
 )
 
-func MakeScatter(w io.Writer, vX, vY *maths.Var, ln [2]float64) error {
+func MakeScatter(w io.Writer, vX, vY *maths.Var, lns [][2]float64) error {
 	pts := make(plotter.XYs, len(vX.Data))
 	for i, x := range vX.Data {
 		pts[i].X = x
@@ -23,8 +23,9 @@ func MakeScatter(w io.Writer, vX, vY *maths.Var, ln [2]float64) error {
 	if err != nil {
 		return err
 	}
-	p.X.Label.Text = fmt.Sprintf("%s (m: %.2f, std: %.2f)", vX.Name, vX.Mean, vX.STD)
-	p.Y.Label.Text = fmt.Sprintf("%s (m: %.2f std: %.2f)", vY.Name, vY.Mean, vY.STD)
+	p.Title.Text = fmt.Sprintf("Normalized Data (N %d)", len(vX.Data))
+	p.X.Label.Text = fmt.Sprintf("%s (m: %.2f, std: %.2f)", vX.Name, vX.OldMean, vX.OldSTD)
+	p.Y.Label.Text = fmt.Sprintf("%s (m: %.2f std: %.2f)", vY.Name, vY.OldMean, vY.OldSTD)
 	p.Add(plotter.NewGrid())
 
 	s, err := plotter.NewScatter(pts)
@@ -34,17 +35,21 @@ func MakeScatter(w io.Writer, vX, vY *maths.Var, ln [2]float64) error {
 	s.GlyphStyle.Color = color.RGBA{R: 255, B: 128, A: 255}
 	s.GlyphStyle.Radius = vg.Points(1)
 	p.Add(s)
-	if ln[1] != 0 {
+	for i, ln := range lns {
 		f := plotter.NewFunction(func(x float64) float64 {
 			return ln[0] + ln[1]*x
 		})
 		f.Samples = 2
 		f.LineStyle.Width = vg.Points(1)
-		f.LineStyle.Color = color.RGBA{B: 255, A: 255}
+		switch i % 3 {
+		case 1:
+			f.LineStyle.Color = color.RGBA{G: 255, A: 255}
+		case 2:
+			f.LineStyle.Color = color.RGBA{R: 100, B: 100, A: 255}
+		default:
+			f.LineStyle.Color = color.RGBA{B: 255, A: 255}
+		}
 		p.Add(f)
-		p.Title.Text = fmt.Sprintf("Normalized Data (N %d) With Regression (B %3.3f)", len(vX.Data), ln[1])
-	} else {
-		p.Title.Text = fmt.Sprintf("Normalized Data (N %d)", len(vX.Data))
 	}
 	wr, err := p.WriterTo(375, 375, "png")
 	// not in pixels!  "vg.Length" units

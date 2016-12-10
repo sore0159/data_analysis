@@ -6,29 +6,34 @@ import (
 )
 
 type Var struct {
-	Name string
-	Data []float64
-	Mean float64
-	STD  float64
+	Name    string
+	Data    []float64
+	OldMean float64
+	OldSTD  float64
 }
 
 func NewVar(name string) *Var {
 	return &Var{Name: name}
 }
 
-func (v *Var) CalcMeanStd() {
-	v.Mean, v.STD = stat.MeanStdDev(v.Data, nil)
+func (v *Var) CalcMeanStd() (float64, float64) {
+	return stat.MeanStdDev(v.Data, nil)
 }
 func (v *Var) Normalize() {
-	v.CalcMeanStd()
+	v.OldMean, v.OldSTD = v.CalcMeanStd()
 	for i, x := range v.Data {
-		v.Data[i] = (x - v.Mean) / v.STD
+		v.Data[i] = (x - v.OldMean) / v.OldSTD
 	}
 }
 
 func (v *Var) Add(v2 *Var, s float64) {
 	for i, x := range v.Data {
 		v.Data[i] = x + s*v2.Data[i]
+	}
+}
+func (v *Var) Scale(s float64) {
+	for i, x := range v.Data {
+		v.Data[i] = s * x
 	}
 }
 func (v *Var) Transform(f func(float64) float64) {
@@ -39,11 +44,28 @@ func (v *Var) Transform(f func(float64) float64) {
 func (v *Var) CopyLen(v2 *Var) {
 	v.Data = make([]float64, len(v2.Data))
 }
+func (v *Var) Copy() (v2 *Var) {
+	v2 = NewVar("Copy of " + v.Name)
+	v2.Data = make([]float64, len(v.Data))
+	for i, x := range v.Data {
+		v2.Data[i] = x
+	}
+	return v2
+}
 
 type Vars []*Var
 
 func CollectVars(vs ...*Var) Vars {
 	return Vars(vs)
+}
+func (vs Vars) Pop(i int) (*Var, Vars) {
+	r := make([]*Var, 0, len(vs)-1)
+	for j, v := range vs {
+		if j != i {
+			r = append(r, v)
+		}
+	}
+	return vs[i], Vars(r)
 }
 func (vs Vars) Normalize() {
 	for _, v := range vs {

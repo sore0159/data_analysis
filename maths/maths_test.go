@@ -1,6 +1,7 @@
 package maths
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 	"testing"
@@ -21,11 +22,17 @@ func TestTwo(t *testing.T) {
 	log.Println("vs, mat:", vs, mat)
 	log.Println(mat.At(0, 0), mat.At(1, 0), mat.At(2, 0))
 	log.Println(mat.At(1, 0), mat.At(1, 1))
+	fmt.Println("")
+	log.Println("VS0:", vs[0])
+	x1, x2 := vs.Pop(0)
+	log.Println("Pop Test: ", x1, " AND ", x2)
+	log.Println("VS0:", vs[0])
+
 }
 
 func TestThree(t *testing.T) {
 	rand.Seed(time.Now().Unix())
-	size := 10000000
+	size := 1000000
 
 	v1 := RandVar("v1", size)
 	v2 := RandVar("v2", size)

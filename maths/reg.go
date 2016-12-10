@@ -10,7 +10,7 @@ func (vX *Var) Regress(vY *Var) [2]float64 {
 	return [2]float64{c, b}
 }
 func (vX *Var) Predictions(line [2]float64) (vP *Var) {
-	vP = NewVar("Predictions")
+	vP = NewVar("Prediction")
 	vP.Data = make([]float64, len(vX.Data))
 	for i, x := range vX.Data {
 		vP.Data[i] = line[0] + line[1]*x
@@ -32,17 +32,30 @@ func (vX *Var) Residuals(vY *Var, line [2]float64) (vR *Var) {
 // value being the intercept term of the regression model
 func (vs Vars) Regress(vD *Var) ([]float64, error) {
 	xM := vs.RegressionMatrix()
-	yM := CollectVars(vD).Matrix()
+	yV := mat64.NewVector(len(vD.Data), vD.Data)
 
-	var qr mat64.QR
-	qr.Factorize(xM)
-
-	var bM mat64.Dense
-	err := bM.SolveQR(&qr, false, yM)
+	var bV mat64.Vector
+	err := bV.SolveVec(xM, yV)
 	if err != nil {
 		return nil, err
 	}
 	sol := make([]float64, len(vs)+1)
-	mat64.Col(sol, 0, &bM)
+	mat64.Col(sol, 0, &bV)
 	return sol, nil
+}
+
+func (vs Vars) Predictions(coef []float64) *Var {
+	if len(coef) != len(vs)+1 {
+		return nil
+	}
+	v := NewVar("Prediction")
+	v.CopyLen(vs[0])
+	for i, _ := range v.Data {
+		v.Data[i] = coef[0]
+		for j, c := range coef[1:] {
+			v.Data[i] += c * vs[j].Data[i]
+		}
+	}
+	v.CalcMeanStd()
+	return v
 }

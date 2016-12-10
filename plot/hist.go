@@ -19,7 +19,7 @@ func MakeHist(w io.Writer, vX *maths.Var) error {
 		return err
 	}
 	p.Title.Text = fmt.Sprintf("Normalized Data (N %d)", len(vX.Data))
-	p.X.Label.Text = fmt.Sprintf("%s (m: %.2f, std: %.2f)", vX.Name, vX.Mean, vX.STD)
+	p.X.Label.Text = fmt.Sprintf("%s (m: %.2f, std: %.2f)", vX.Name, vX.OldMean, vX.OldSTD)
 	p.Y.Label.Text = "Frequency"
 	p.Add(plotter.NewGrid())
 

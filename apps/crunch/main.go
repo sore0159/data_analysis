@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os/exec"
 	"time"
 
 	"mule/data_analysis/maths"
@@ -27,38 +28,24 @@ func main() {
 	log.Println("Data loaded!")
 
 	log.Println("Processing tweets...")
-	vars, err := d.ProcessTweets2(list)
+	vars, err := d.ProcessTweets(list)
 	if err != nil {
 		log.Println("Error processing tweets: ", err)
 		return
 	}
 	log.Printf("Tweets processed! (%d data points)\n", len(vars[0].Data))
 
-	log.Println("Normalizing...")
-	vars.Normalize()
-
 	log.Println("Calculating covariance matrix...")
 	mat := vars.Matrix()
 	cov := maths.Cov(mat)
-	DispCov(cfg.Output, vars, cov)
-
-	//TestReg(cfg, vars)
+	DispCov(cfg, vars, cov)
 
 	if cfg.DoReg {
-		log.Println("Running regression...")
-		vIs := maths.CollectVars(vars[1], vars[2])
-		vD := vars[0]
-		coef, err := vIs.Regress(vD)
+		err = TestReg(cfg, vars)
 		if err != nil {
-			log.Println("Regression error:", err)
-		} else {
-			log.Println("Regression complete!")
-			DispReg(cfg.Output, vIs, vD, coef)
+			log.Println("Error testing regression: ", err)
 		}
-
-	}
-
-	if cfg.DoScatter {
+	} else if cfg.DoScatter {
 		log.Println("Making scatterplots...")
 		for i, vX := range vars {
 			for j, vY := range vars {
@@ -66,7 +53,7 @@ func main() {
 					continue
 				}
 				log.Println("Plotting", vX.Name, "and", vY.Name+"...")
-				err = ScatterPng(cfg, vX, vY, [2]float64{0, 0})
+				err = ScatterPng(cfg, vX, vY, nil)
 				if err != nil {
 					log.Println(vX.Name, " ", vY.Name, " plot error: ", err)
 				}
@@ -74,7 +61,6 @@ func main() {
 		}
 		log.Println("Scatterplots complete!")
 	}
-
 	if cfg.DoHist {
 		log.Println("Making histograms...")
 		for _, vX := range vars {
@@ -87,5 +73,6 @@ func main() {
 		log.Println("Histograms complete!")
 	}
 
+	exec.Command("say", "Your program is complete!").Start()
 	fmt.Fprintf(cfg.Output, "\n(%s) Crunch complete!\n", time.Now())
 }
