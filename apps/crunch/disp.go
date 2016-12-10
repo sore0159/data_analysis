@@ -14,20 +14,26 @@ import (
 	pl "mule/data_analysis/plot"
 )
 
-const DATA_DIR = "DATA/"
-
-func GetWriter() (w io.Writer, err error) {
-	if len(os.Args) < 2 {
-		return os.Stdout, nil
+func DispCfg(c Config) {
+	fmt.Printf("Using data dir %s\n", c.DataDir)
+	if c.DoReg || c.DoHist || c.DoScatter {
+		parts := make([]string, 0, 3)
+		if c.DoReg {
+			parts = append(parts, "regular expression calculations")
+		}
+		if c.DoHist {
+			parts = append(parts, "histogram plots")
+		}
+		if c.DoScatter {
+			parts = append(parts, "scatter plots")
+		}
+		fmt.Printf("Performing: %s\n", strings.Join(parts, ", "))
+	} else {
+		fmt.Println("No heavy operations requested")
 	}
-	timeStr := time.Now().Format("060102_1504_")
-	fName := fmt.Sprintf("%s%scrunch.txt", DATA_DIR, timeStr)
-	f, err := os.Create(fName)
-	if err != nil {
-		return nil, err
+	if c.Log {
+		fmt.Println("Results being logged.")
 	}
-	fmt.Fprintf(f, "Creating crunch log %s\n", fName)
-	return f, nil
 }
 
 func DispCov(w io.Writer, vs maths.Vars, mat *mat64.SymDense) {
@@ -64,28 +70,36 @@ func DispCov(w io.Writer, vs maths.Vars, mat *mat64.SymDense) {
 
 }
 
-func DispReg(w io.Writer, r *regression.Regression) {
-	fmt.Fprintf(w, "Regression formula:\n%v\n", r.Formula)
-	fmt.Fprintf(w, "COEF: %v, %v, %v, %v, %v, %v\n", r.Coeff(0), r.Coeff(1), r.Coeff(2), r.Coeff(3), r.Coeff(4), r.Coeff(5))
-	fmt.Fprintf(w, "R2: %v\n", r.R2)
-	//	fmt.Fprintf("Regression:\n%s\n", d.R)
-	fmt.Fprintln(w, "\n")
+func DispReg(w io.Writer, vs maths.Vars, i int, r *regression.Regression) {
+	parts := make([]string, 1, len(vs))
+	parts[0] = fmt.Sprintf("Regression formula:\n %s = %v", vs[i].Name, r.Coeff(0))
+
+	var count int
+	for j, v := range vs {
+		if i == j {
+			continue
+		}
+		count += 1
+		parts = append(parts, fmt.Sprintf("%v * %s", r.Coeff(count), v.Name))
+	}
+	fmt.Fprintln(w, strings.Join(parts, " + "))
+	fmt.Fprintf(w, "R2: %v\n\n", r.R2)
 }
 
-func ScatterPng(vX, vY *maths.Var, cf float64) error {
+func ScatterPng(c Config, vX, vY *maths.Var, cf float64) error {
 	now := time.Now()
 	timeStr := now.Format("060102_1504_")
-	f, err := os.Create(fmt.Sprintf("%simg/%sscatter_%s_%s.png", DATA_DIR, timeStr, vX.Name, vY.Name))
+	f, err := os.Create(fmt.Sprintf("%simg/%sscatter_%s_%s.png", c.DataDir, timeStr, vX.Name, vY.Name))
 	if err != nil {
 		return err
 	}
 	return pl.MakeScatter(f, vX, vY, cf)
 }
 
-func HistPng(vX *maths.Var) error {
+func HistPng(c Config, vX *maths.Var) error {
 	now := time.Now()
 	timeStr := now.Format("060102_1504_")
-	f, err := os.Create(fmt.Sprintf("%simg/%shist_%s.png", DATA_DIR, timeStr, vX.Name))
+	f, err := os.Create(fmt.Sprintf("%simg/%shist_%s.png", c.DataDir, timeStr, vX.Name))
 	if err != nil {
 		return err
 	}

@@ -44,9 +44,9 @@ func (d *Data) ProcessTweets(tws []tw.TweetData) (maths.Vars, error) {
 }
 
 func (d *Data) ProcessTweets2(tws []tw.TweetData) (maths.Vars, error) {
-	v1 := maths.NewVar("TweetCount")
+	v1 := maths.NewVar("Ln TweetCount")
 	v2 := maths.NewVar("Account Age in Days")
-	v3 := maths.NewVar("Followers")
+	v3 := maths.NewVar("Ln Followers")
 	vars := maths.Vars([]*maths.Var{v1, v2, v3})
 	for _, v := range vars {
 		v.Data = make([]float64, 0, len(tws))
@@ -55,13 +55,13 @@ func (d *Data) ProcessTweets2(tws []tw.TweetData) (maths.Vars, error) {
 		//if t.TweetCount > 400000 || t.Followers > 1000000 {
 		//if t.TweetCount > 200000 || t.Followers > 60000 {
 		//if t.TweetCount > 70000 || t.Followers > 10000 {
-		if t.TweetCount > 20000 || t.Followers > 2000 {
-			continue
-		}
+		//if t.TweetCount > 20000 || t.Followers > 2000 {
+		//continue
+		//}
 		days := math.Floor(t.TweetDate.Sub(t.UserSinceDate).Hours() / 24.0)
-		v1.Data = append(v1.Data, float64(t.TweetCount))
+		v1.Data = append(v1.Data, math.Log(float64(t.TweetCount+1)))
 		v2.Data = append(v2.Data, days)
-		v3.Data = append(v3.Data, float64(t.Followers))
+		v3.Data = append(v3.Data, math.Log(float64(t.Followers+1)))
 	}
 	return vars, nil
 }

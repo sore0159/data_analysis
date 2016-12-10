@@ -3,17 +3,19 @@ package main
 import (
 	"errors"
 	"os"
+	"strings"
 
 	"mule/data_analysis/cities"
 	tw "mule/data_analysis/twitter"
 )
 
-func GetTweets() ([]tw.TweetData, error) {
-	var fName string
-	if len(os.Args) < 2 {
-		fName = DATA_DIR + "little_data.txt"
-	} else {
-		fName = os.Args[1]
+func GetTweets(c Config) ([]tw.TweetData, error) {
+	fName := c.DataDir + "little_data.txt"
+	for i, str := range os.Args {
+		if i != 0 && !strings.HasPrefix(str, "-") {
+			fName = str
+			break
+		}
 	}
 	list, err := tw.FromCSVFile(fName)
 	if err != nil {
@@ -31,12 +33,12 @@ type Data struct {
 	C cities.Cities
 }
 
-func GetData() (*Data, error) {
-	cities, err := cities.FromFile(DATA_DIR+"cities.json", 100)
+func GetData(c Config) (*Data, error) {
+	cts, err := cities.FromFile(c.DataDir+"cities.json", 100)
 	if err != nil {
 		return nil, err
 	}
 	return &Data{
-		C: cities,
+		C: cts,
 	}, nil
 }

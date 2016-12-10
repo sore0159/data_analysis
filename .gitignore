@@ -6,6 +6,7 @@
 *swp
 *txt
 *json
+*.sh
 SECRET*
 UTILS
 img

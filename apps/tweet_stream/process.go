@@ -25,8 +25,11 @@ type Aggregator struct {
 }
 
 func MakeAggregator() (Aggregator, error) {
-	now := time.Now()
-	fileName := fmt.Sprintf(DATA_DIR+"%d%02d%02d_tweets.txt", now.Year(), now.Month(), now.Day())
+	fileName := fmt.Sprintf("%s%stweets.txt", DATA_DIR, time.Now().Format("060102_1504_"))
+	_, err := os.Stat(DATA_DIR)
+	if os.IsNotExist(err) {
+		fileName = "../" + fileName
+	}
 	f, err := os.Create(fileName)
 	if err != nil {
 		return Aggregator{}, err
