@@ -19,7 +19,7 @@ func DispCfg(c Config) {
 	if c.DoHeat || c.DoReg || c.DoHist || c.DoScatter {
 		parts := make([]string, 0, 4)
 		if c.DoReg {
-			parts = append(parts, "regular expression calculations")
+			parts = append(parts, "linear regression calculations")
 		}
 		if c.DoHist {
 			parts = append(parts, "histogram plots")

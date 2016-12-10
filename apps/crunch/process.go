@@ -51,6 +51,7 @@ func (d *Data) ProcessTweets2(tws []tw.TweetData) (maths.Vars, error) {
 	for _, v := range vars {
 		v.Data = make([]float64, 0, len(tws))
 	}
+	seen := make(map[int64]bool, len(tws))
 	for _, t := range tws {
 		//if t.TweetCount > 400000 || t.Followers > 1000000 {
 		//if t.TweetCount > 200000 || t.Followers > 60000 {
@@ -58,6 +59,10 @@ func (d *Data) ProcessTweets2(tws []tw.TweetData) (maths.Vars, error) {
 		//if t.TweetCount > 20000 || t.Followers > 2000 {
 		//continue
 		//}
+		if seen[t.UserID] {
+			continue
+		}
+		seen[t.UserID] = true
 		days := math.Floor(t.TweetDate.Sub(t.UserSinceDate).Hours() / 24.0)
 		v1.Data = append(v1.Data, math.Log(float64(t.TweetCount+1)))
 		v2.Data = append(v2.Data, days)
