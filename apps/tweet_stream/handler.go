@@ -31,12 +31,12 @@ func (h *Handler) HandleDemux(demux *twitter.SwitchDemux) {
 	}
 }
 
-func MakeHandler() (*Handler, error) {
+func MakeHandler(c Config) (*Handler, error) {
 	p, err := MakeParser()
 	if err != nil {
 		return nil, err
 	}
-	a, err := MakeAggregator()
+	a, err := MakeAggregator(c)
 	if err != nil {
 		return nil, err
 	}

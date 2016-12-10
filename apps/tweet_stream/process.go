@@ -21,15 +21,12 @@ func (p *Parser) Close() {
 }
 
 type Aggregator struct {
-	File *os.File
+	File    *os.File
+	LogFile *os.File
 }
 
-func MakeAggregator() (Aggregator, error) {
-	fileName := fmt.Sprintf("%s%stweets.txt", DATA_DIR, time.Now().Format("060102_1504_"))
-	_, err := os.Stat(DATA_DIR)
-	if os.IsNotExist(err) {
-		fileName = "../" + fileName
-	}
+func MakeAggregator(c Config) (Aggregator, error) {
+	fileName := fmt.Sprintf("%s%stweets.txt", c.DataDir, time.Now().Format("060102_1504_"))
 	f, err := os.Create(fileName)
 	if err != nil {
 		return Aggregator{}, err
