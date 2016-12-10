@@ -78,5 +78,26 @@ func main() {
 		}
 		log.Println("Histograms complete!")
 	}
+
+	if cfg.DoHeat && len(vars) == 3 {
+		log.Println("Making heatmaps...")
+		for i, vX := range vars {
+			var vY, vZ *maths.Var
+			switch i {
+			case 0:
+				vY, vZ = vars[1], vars[2]
+			case 1:
+				vY, vZ = vars[2], vars[0]
+			case 2:
+				vY, vZ = vars[0], vars[1]
+			}
+			log.Println("Plotting", vX.Name+", "+vY.Name+", "+vZ.Name+"...")
+			err = HeatPng(cfg, vX, vY, vZ)
+			if err != nil {
+				log.Println(vX.Name, " heatmap error: ", err)
+			}
+		}
+		log.Println("Histograms complete!")
+	}
 	fmt.Fprintf(cfg.Output, "\n(%s) Crunch complete!\n", time.Now())
 }

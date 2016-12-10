@@ -16,13 +16,16 @@ import (
 
 func DispCfg(c Config) {
 	fmt.Printf("Using data dir %s\n", c.DataDir)
-	if c.DoReg || c.DoHist || c.DoScatter {
-		parts := make([]string, 0, 3)
+	if c.DoHeat || c.DoReg || c.DoHist || c.DoScatter {
+		parts := make([]string, 0, 4)
 		if c.DoReg {
 			parts = append(parts, "regular expression calculations")
 		}
 		if c.DoHist {
 			parts = append(parts, "histogram plots")
+		}
+		if c.DoHeat {
+			parts = append(parts, "heatmap plot")
 		}
 		if c.DoScatter {
 			parts = append(parts, "scatter plots")
@@ -86,10 +89,18 @@ func DispReg(w io.Writer, vs maths.Vars, i int, r *regression.Regression) {
 	fmt.Fprintf(w, "R2: %v\n\n", r.R2)
 }
 
+func FileName(base, ext string, vs ...*maths.Var) string {
+	timeStr := time.Now().Format("060102_1504_")
+	parts := make([]string, len(vs))
+	for i, v := range vs {
+		parts[i] = "_" + strings.Join(strings.Fields(v.Name), "")
+	}
+	return fmt.Sprintf("%s%s%s.%s", timeStr, base, strings.Join(parts, ""), ext)
+}
+
 func ScatterPng(c Config, vX, vY *maths.Var, cf float64) error {
-	now := time.Now()
-	timeStr := now.Format("060102_1504_")
-	f, err := os.Create(fmt.Sprintf("%simg/%sscatter_%s_%s.png", c.DataDir, timeStr, vX.Name, vY.Name))
+	fName := c.DataDir + "img/" + FileName("scatter", "png", vX, vY)
+	f, err := os.Create(fName)
 	if err != nil {
 		return err
 	}
@@ -97,11 +108,19 @@ func ScatterPng(c Config, vX, vY *maths.Var, cf float64) error {
 }
 
 func HistPng(c Config, vX *maths.Var) error {
-	now := time.Now()
-	timeStr := now.Format("060102_1504_")
-	f, err := os.Create(fmt.Sprintf("%simg/%shist_%s.png", c.DataDir, timeStr, vX.Name))
+	fName := c.DataDir + "img/" + FileName("hist", "png", vX)
+	f, err := os.Create(fName)
 	if err != nil {
 		return err
 	}
 	return pl.MakeHist(f, vX)
+}
+
+func HeatPng(c Config, vX, vY, vZ *maths.Var) error {
+	fName := c.DataDir + "img/" + FileName("heat", "png", vX, vY, vZ)
+	f, err := os.Create(fName)
+	if err != nil {
+		return err
+	}
+	return pl.MakeHeat(f, vX, vY, vZ)
 }
