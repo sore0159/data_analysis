@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/gonum/matrix/mat64"
-	"github.com/sajari/regression"
 
 	"mule/data_analysis/maths"
 	pl "mule/data_analysis/plot"
@@ -16,16 +15,13 @@ import (
 
 func DispCfg(c Config) {
 	fmt.Printf("Using data dir %s\n", c.DataDir)
-	if c.DoHeat || c.DoReg || c.DoHist || c.DoScatter {
-		parts := make([]string, 0, 4)
+	if c.DoReg || c.DoHist || c.DoScatter {
+		parts := make([]string, 0, 2)
 		if c.DoReg {
 			parts = append(parts, "linear regression calculations")
 		}
 		if c.DoHist {
 			parts = append(parts, "histogram plots")
-		}
-		if c.DoHeat {
-			parts = append(parts, "heatmap plot")
 		}
 		if c.DoScatter {
 			parts = append(parts, "scatter plots")
@@ -73,20 +69,13 @@ func DispCov(w io.Writer, vs maths.Vars, mat *mat64.SymDense) {
 
 }
 
-func DispReg(w io.Writer, vs maths.Vars, i int, r *regression.Regression) {
-	parts := make([]string, 1, len(vs))
-	parts[0] = fmt.Sprintf("Regression formula:\n %s = %v", vs[i].Name, r.Coeff(0))
-
-	var count int
-	for j, v := range vs {
-		if i == j {
-			continue
-		}
-		count += 1
-		parts = append(parts, fmt.Sprintf("%v * %s", r.Coeff(count), v.Name))
+func DispReg(w io.Writer, vIs maths.Vars, vD *maths.Var, coef []float64) {
+	parts := make([]string, len(coef))
+	parts[0] = fmt.Sprintf("Regression formula:\n %s = %v", vD.Name, coef[0])
+	for i, v := range vIs {
+		parts[i+1] = fmt.Sprintf("%f * %s", coef[i], v.Name)
 	}
 	fmt.Fprintln(w, strings.Join(parts, " + "))
-	fmt.Fprintf(w, "R2: %v\n\n", r.R2)
 }
 
 func FileName(base, ext string, vs ...*maths.Var) string {
@@ -98,13 +87,13 @@ func FileName(base, ext string, vs ...*maths.Var) string {
 	return fmt.Sprintf("%s%s%s.%s", timeStr, base, strings.Join(parts, ""), ext)
 }
 
-func ScatterPng(c Config, vX, vY *maths.Var, cf float64) error {
+func ScatterPng(c Config, vX, vY *maths.Var, ln [2]float64) error {
 	fName := c.DataDir + "img/" + FileName("scatter", "png", vX, vY)
 	f, err := os.Create(fName)
 	if err != nil {
 		return err
 	}
-	return pl.MakeScatter(f, vX, vY, cf)
+	return pl.MakeScatter(f, vX, vY, ln)
 }
 
 func HistPng(c Config, vX *maths.Var) error {
@@ -114,13 +103,4 @@ func HistPng(c Config, vX *maths.Var) error {
 		return err
 	}
 	return pl.MakeHist(f, vX)
-}
-
-func HeatPng(c Config, vX, vY, vZ *maths.Var) error {
-	fName := c.DataDir + "img/" + FileName("heat", "png", vX, vY, vZ)
-	f, err := os.Create(fName)
-	if err != nil {
-		return err
-	}
-	return pl.MakeHeat(f, vX, vY, vZ)
 }

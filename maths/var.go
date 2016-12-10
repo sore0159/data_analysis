@@ -3,7 +3,6 @@ package maths
 import (
 	"github.com/gonum/matrix/mat64"
 	"github.com/gonum/stat"
-	"github.com/sajari/regression"
 )
 
 type Var struct {
@@ -17,11 +16,28 @@ func NewVar(name string) *Var {
 	return &Var{Name: name}
 }
 
-func (v *Var) Normalize() {
+func (v *Var) CalcMeanStd() {
 	v.Mean, v.STD = stat.MeanStdDev(v.Data, nil)
+}
+func (v *Var) Normalize() {
+	v.CalcMeanStd()
 	for i, x := range v.Data {
 		v.Data[i] = (x - v.Mean) / v.STD
 	}
+}
+
+func (v *Var) Add(v2 *Var, s float64) {
+	for i, x := range v.Data {
+		v.Data[i] = x + s*v2.Data[i]
+	}
+}
+func (v *Var) Transform(f func(float64) float64) {
+	for i, x := range v.Data {
+		v.Data[i] = f(x)
+	}
+}
+func (v *Var) CopyLen(v2 *Var) {
+	v.Data = make([]float64, len(v2.Data))
 }
 
 type Vars []*Var
@@ -34,6 +50,8 @@ func (vs Vars) Normalize() {
 		v.Normalize()
 	}
 }
+
+// i, j is vs[j].Data[i]
 func (vs Vars) Matrix() *mat64.Dense {
 	if len(vs) == 0 || len(vs[0].Data) == 0 {
 		return nil
@@ -46,33 +64,22 @@ func (vs Vars) Matrix() *mat64.Dense {
 			mat[i*c+j] = vs[j].Data[i]
 		}
 	}
-	// for _, v := range vs {
-	// v.Data = nil  // Memory freedom?
-	// }
 	return mat64.NewDense(r, c, mat)
 }
 
-func (vs Vars) Regression(depI int) *regression.Regression {
-	if depI < 0 || len(vs) < 2 || len(vs) < depI+1 || len(vs[0].Data) < len(vs) {
+// i, j is 1 if j == 0, else vs[j-1].Data[i]
+func (vs Vars) RegressionMatrix() *mat64.Dense {
+	if len(vs) == 0 || len(vs[0].Data) == 0 {
 		return nil
 	}
-	indV := make([]*Var, 0, len(vs)-1)
-	for i, v := range vs {
-		if i != depI {
-			indV = append(indV, v)
+	c := len(vs) + 1
+	r := len(vs[0].Data)
+	mat := make([]float64, r*c)
+	for i := 0; i < r; i += 1 {
+		mat[i*c] = 1
+		for j := 1; j < c; j += 1 {
+			mat[i*c+j] = vs[j-1].Data[i]
 		}
 	}
-	r := new(regression.Regression)
-	r.SetObserved(vs[depI].Name)
-	for i, v := range indV {
-		r.SetVar(i, v.Name)
-	}
-	for i, dep := range vs[0].Data {
-		ind := make([]float64, len(indV))
-		for j, v := range indV {
-			ind[j] = v.Data[i]
-		}
-		r.Train(regression.DataPoint(dep, ind))
-	}
-	return r
+	return mat64.NewDense(r, c, mat)
 }

@@ -13,7 +13,7 @@ import (
 	//"github.com/gonum/plot/vg/draw"
 )
 
-func MakeScatter(w io.Writer, vX, vY *maths.Var, cf float64) error {
+func MakeScatter(w io.Writer, vX, vY *maths.Var, ln [2]float64) error {
 	pts := make(plotter.XYs, len(vX.Data))
 	for i, x := range vX.Data {
 		pts[i].X = x
@@ -34,15 +34,15 @@ func MakeScatter(w io.Writer, vX, vY *maths.Var, cf float64) error {
 	s.GlyphStyle.Color = color.RGBA{R: 255, B: 128, A: 255}
 	s.GlyphStyle.Radius = vg.Points(1)
 	p.Add(s)
-	if cf != 0 {
+	if ln[1] != 0 {
 		f := plotter.NewFunction(func(x float64) float64 {
-			return x * cf
+			return ln[0] + ln[1]*x
 		})
 		f.Samples = 2
 		f.LineStyle.Width = vg.Points(1)
 		f.LineStyle.Color = color.RGBA{B: 255, A: 255}
 		p.Add(f)
-		p.Title.Text = fmt.Sprintf("Normalized Data (N %d) With Regression (B %3.3f)", len(vX.Data), cf)
+		p.Title.Text = fmt.Sprintf("Normalized Data (N %d) With Regression (B %3.3f)", len(vX.Data), ln[1])
 	} else {
 		p.Title.Text = fmt.Sprintf("Normalized Data (N %d)", len(vX.Data))
 	}

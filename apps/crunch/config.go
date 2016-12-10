@@ -13,7 +13,6 @@ type Config struct {
 
 	DoReg     bool
 	DoHist    bool
-	DoHeat    bool
 	DoScatter bool
 	Log       bool
 }
@@ -40,9 +39,6 @@ func GetConfig() (c Config) {
 				c.DoReg = true
 			case 'h':
 				c.DoHist = true
-			// Heatmap nonfunctional
-			//case 't':
-			//c.DoHeat = true
 			case 's':
 				c.DoScatter = true
 			case 'l':

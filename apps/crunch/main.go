@@ -42,12 +42,20 @@ func main() {
 	cov := maths.Cov(mat)
 	DispCov(cfg.Output, vars, cov)
 
+	//TestReg(cfg, vars)
+
 	if cfg.DoReg {
-		r := vars.Regression(2)
 		log.Println("Running regression...")
-		r.Run()
-		log.Println("Regression complete!")
-		DispReg(cfg.Output, vars, 2, r)
+		vIs := maths.CollectVars(vars[1], vars[2])
+		vD := vars[0]
+		coef, err := vIs.Regress(vD)
+		if err != nil {
+			log.Println("Regression error:", err)
+		} else {
+			log.Println("Regression complete!")
+			DispReg(cfg.Output, vIs, vD, coef)
+		}
+
 	}
 
 	if cfg.DoScatter {
@@ -58,7 +66,7 @@ func main() {
 					continue
 				}
 				log.Println("Plotting", vX.Name, "and", vY.Name+"...")
-				err = ScatterPng(cfg, vX, vY, 0)
+				err = ScatterPng(cfg, vX, vY, [2]float64{0, 0})
 				if err != nil {
 					log.Println(vX.Name, " ", vY.Name, " plot error: ", err)
 				}
@@ -79,25 +87,5 @@ func main() {
 		log.Println("Histograms complete!")
 	}
 
-	if cfg.DoHeat && len(vars) == 3 {
-		log.Println("Making heatmaps...")
-		for i, vX := range vars {
-			var vY, vZ *maths.Var
-			switch i {
-			case 0:
-				vY, vZ = vars[1], vars[2]
-			case 1:
-				vY, vZ = vars[2], vars[0]
-			case 2:
-				vY, vZ = vars[0], vars[1]
-			}
-			log.Println("Plotting", vX.Name+", "+vY.Name+", "+vZ.Name+"...")
-			err = HeatPng(cfg, vX, vY, vZ)
-			if err != nil {
-				log.Println(vX.Name, " heatmap error: ", err)
-			}
-		}
-		log.Println("Histograms complete!")
-	}
 	fmt.Fprintf(cfg.Output, "\n(%s) Crunch complete!\n", time.Now())
 }
