@@ -1,14 +1,13 @@
 body { 
         font-family: "Times New Roman", Serif; 
-        color: #000044;
+        color: #000000;
 }
 h1, h2, h3 {
         font-family: Tahoma, Geneva, sans-serif;
         font-weight: normal;
         padding:0;margin:0;
         margin-top: 20px;
-        color: #000044;
-        font-size: small;
+        color: #222288;
 }
 a {
         color: #0000FF;
@@ -26,6 +25,21 @@ a {
 .biggen {
         font-size: x-large;
         margin:0px;padding:0px;
+}
+.select {
+        color: #000000;
+        font-weight: bold;
+        font-size: x-large;
+}
+.unselect {
+        color: #888899;
+}
+.grey {
+        background-color: #EEEEFF;
+        padding: 1px 0px;
+        margin-top: 5px;
+        margin-bottom: 10px;
+        border-radius: 15px;
 }
 sup {
         color: #0000FF;

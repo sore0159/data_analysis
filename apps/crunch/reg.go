@@ -11,7 +11,7 @@ import (
 func TestReg(cfg Config, vars maths.Vars) error {
 	vD, vIs := vars.Pop(0)
 	n := float64(len(vars[0].Data))
-	fmt.Fprintf(cfg.Output, "Testing %s regression over %s (N %1f)...\n",
+	fmt.Fprintf(cfg.Output, "Testing %s regression over %s (N %.0f)...\n",
 		vD, vIs, n)
 	rg, err := maths.FullRegression(vD, vIs)
 	//coef, err := vIs.Regress(vD)
