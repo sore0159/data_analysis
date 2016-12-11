@@ -18,8 +18,13 @@ func MakeHist(w io.Writer, vX *maths.Var) error {
 	if err != nil {
 		return err
 	}
-	p.Title.Text = fmt.Sprintf("Normalized Data (N %d)", len(vX.Data))
-	p.X.Label.Text = fmt.Sprintf("%s (m: %.2f, std: %.2f)", vX.Name, vX.OldMean, vX.OldSTD)
+	if vX.OldSTD == 0 {
+		p.X.Label.Text = vX.Name
+		p.Title.Text = fmt.Sprintf("Histogram (N %d)", len(vX.Data))
+	} else {
+		p.X.Label.Text = fmt.Sprintf("%s (m: %.2f, std: %.2f)", vX.Name, vX.OldMean, vX.OldSTD)
+		p.Title.Text = fmt.Sprintf("Normalized Data (N %d)", len(vX.Data))
+	}
 	p.Y.Label.Text = "Frequency"
 	p.Add(plotter.NewGrid())
 

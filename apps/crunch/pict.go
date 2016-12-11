@@ -20,12 +20,22 @@ func FileName(base, ext string, vs ...*maths.Var) string {
 }
 
 func ScatterPng(c Config, vX, vY *maths.Var, lns [][2]float64) error {
+	var alpha uint8
+	if n := len(vX.Data); n < 100000 {
+		alpha = 160
+	} else if n < 500000 {
+		alpha = 80
+	} else if n < 1000000 {
+		alpha = 10
+	} else {
+		alpha = 2
+	}
 	fName := c.DataDir + "img/" + FileName("scatter", "png", vX, vY)
 	f, err := os.Create(fName)
 	if err != nil {
 		return err
 	}
-	return pl.MakeScatter(f, vX, vY, lns)
+	return pl.MakeScatter(f, vX, vY, alpha, lns)
 }
 
 func HistPng(c Config, vX *maths.Var) error {

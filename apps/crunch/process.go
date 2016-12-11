@@ -13,7 +13,7 @@ func (d *Data) ProcessTweets(tws []tw.TweetData) (maths.Vars, error) {
 		maths.NewVar("Links"),
 		maths.NewVar("Words"),
 		maths.NewVar("LnTweetCount"),
-		maths.NewVar("LnDist"),
+		//maths.NewVar("LnDist"),
 		maths.NewVar("LnPopulation"),
 		maths.NewVar("Age(days)"),
 	)
@@ -24,6 +24,7 @@ func (d *Data) ProcessTweets(tws []tw.TweetData) (maths.Vars, error) {
 	for _, t := range tws {
 		// I guess twitter coords are (Long, Lat) instead of (Lat, Long)
 		ct, dist := d.C.Closest([2]float64{t.Location[1], t.Location[0]})
+		_ = dist
 		days := math.Floor(t.TweetDate.Sub(t.UserSinceDate).Hours() / 24.0)
 
 		data = []float64{
@@ -31,7 +32,7 @@ func (d *Data) ProcessTweets(tws []tw.TweetData) (maths.Vars, error) {
 			float64(t.Links),
 			float64(len(t.Words)),
 			math.Log(float64(t.TweetCount + 1)),
-			math.Log(dist + 1),
+			//math.Log(dist + 1),
 			math.Log(float64(ct.Pop)),
 			days,
 		}

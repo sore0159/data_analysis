@@ -22,3 +22,11 @@ func (v *Var) Sum() float64 {
 	}
 	return sum
 }
+
+func (v *Var) SumSqs() float64 {
+	var sum float64
+	for _, x := range v.Data {
+		sum += x * x
+	}
+	return sum
+}

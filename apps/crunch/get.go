@@ -10,11 +10,15 @@ import (
 )
 
 func GetTweets(c Config) ([]tw.TweetData, error) {
-	fName := c.DataDir + "little_data.txt"
-	for i, str := range os.Args {
-		if i != 0 && !strings.HasPrefix(str, "-") {
-			fName = str
-			break
+	fName := c.DataDir + "super_data.txt"
+	if c.Tiny {
+		fName = c.DataDir + "little_data.txt"
+	} else {
+		for i, str := range os.Args {
+			if i != 0 && !strings.HasPrefix(str, "-") {
+				fName = str
+				break
+			}
 		}
 	}
 	list, err := tw.FromCSVFile(fName)

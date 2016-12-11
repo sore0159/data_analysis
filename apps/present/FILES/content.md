@@ -3,6 +3,10 @@ class: center, middle
 ## Analysis: Twitter
 Eric Sorell, Dec 2016
 
+Test
+???
+Testing Speaker Notes
+
 ---
 ## Data Analysis of Twitter Behaviors
 

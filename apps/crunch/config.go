@@ -16,6 +16,7 @@ type Config struct {
 	DoHist    bool
 	DoScatter bool
 	Log       bool
+	Tiny      bool
 }
 
 func GetConfig() (c Config) {
@@ -44,6 +45,8 @@ func GetConfig() (c Config) {
 				c.DoScatter = true
 			case 'l':
 				c.Log = true
+			case 't':
+				c.Tiny = true
 			case '-':
 			default:
 				unused = append(unused, string(cr))

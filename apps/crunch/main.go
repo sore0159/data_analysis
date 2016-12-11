@@ -10,6 +10,7 @@ import (
 )
 
 func main() {
+	start := time.Now()
 	log.Println("Starting up...")
 	cfg := GetConfig()
 	DispCfg(cfg)
@@ -39,6 +40,13 @@ func main() {
 	mat := vars.Matrix()
 	cov := maths.Cov(mat)
 	DispCov(cfg, vars, cov)
+	err = TestReg(cfg, vars)
+	if err != nil {
+		log.Println("Error testing regression: ", err)
+	}
+	if cfg.DoReg {
+		return
+	}
 
 	if cfg.DoHist {
 		log.Println("Making histograms...")
@@ -51,12 +59,7 @@ func main() {
 		}
 		log.Println("Histograms complete!")
 	}
-	if cfg.DoReg {
-		err = TestReg(cfg, vars)
-		if err != nil {
-			log.Println("Error testing regression: ", err)
-		}
-	} else if cfg.DoScatter {
+	if cfg.DoScatter {
 		log.Println("Making scatterplots...")
 		for i, vX := range vars {
 			for j, vY := range vars {
@@ -73,6 +76,8 @@ func main() {
 		log.Println("Scatterplots complete!")
 	}
 
-	exec.Command("say", "Your program is complete!").Start()
+	if time.Now().Sub(start) > time.Second*30 {
+		exec.Command("say", "Program complete!").Start()
+	}
 	fmt.Fprintf(cfg.Output, "\n(%s) Crunch complete!\n", time.Now())
 }
