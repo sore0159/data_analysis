@@ -18,230 +18,278 @@ class: center, middle
 Introduce the project.
 * "Do Some Interesting Data Analysis"
 * 30 minutes + 30min Q&A
-* Expectation setting
-* * Start to finish, 2 weeks
-* * Focus on understanding over performing
+* Start to finish, 2 weeks
+* Demonstrate ability to explain ideas to clients.
+---
+layout: true
+
+## Initial Approach
+
+.topbox[
+* Twitter is interesting, I'll get data from there
+* Multiple Linear Regressions are interesting, I'll do one of those
+* Scatterplots are interesting, I'll use them
+]
+---
+class: center, middle
+
+???
+I had some ideas right off the bat, and structured the project around those ideas, so let's cover those ideas and that structure.
+---
+
+Twitter provides lots of data to developers with an API accessible via various open source libraries.
+
+https://dev.twitter.com/streaming/public
+<br>
+https://github.com/dghubble/go-twitter/twitter
+
+Filter used:
+* Not a Retweet
+* Geographic coordinates provided
+* Located within the continental US
+* English language
+???
+I quickly set up a program to monitor and record the stream of tweets.
+
+Not all tweets, 'random sample' that matches a filter
+
+---
+Information monitored and recorded:
+* Tweet geographic coordinates
+* Tweet post date
+* Number of links in tweet content
+* List of words in tweet content
+* Poster unique numeric ID
+* Poster creation date
+* Poster follower count
+* Poster Tweet count
+
+???
+Recording went from a few days after the project's start, to a few days before it's end.  There were one or two outages for a few hours, but basically a little over a week's worth of tweets were collected (1644590 tweets).
+
+Samples of various sizes of this data were used during the development of the analysis phase; final analysis numbers and plots used the whole dataset.
+
+I didn't know exactly _what_ I wanted to analyse, hence 'development of analysis'.  Lots of ways to process this data.
+
+---
+Initial Goals for Multiple Linear Regression:
+* Find some interesting relationships between properties of the data
+* Demonstrate 'controlling for confounding variables'
+* Make some predictions
+
+???
+I was able to get my code running multiple linear regressions pretty easily.  Go has a dedicated team of scientists who have put together (and still work on) a good set of libraries for data analysis, matrix math.
+
+It was no "x <-lm(data~.)", though.  I've never used R before so I used Go for this project, to stay on familiar ground, but after watching several stats lectures where they just wave R at the problem and it falls over, I have grown jealous.
+
+Value in this investigation: gaining an appreciation for different numerical methods for handling various stats concepts.  Having to code dive to see if I'm using a Gram-Schimdt or a Householder QR decomposition, and why it matters (numerical stability), was a learning experience.
+---
+Examination of different properties of the data for linear relationships focused on:
+* Number of followers
+<br> <br>
+* Tweet count
+* Number of words used
+* Number of links used
+* Distance from nearest major US city (top 100)
+* Population of nearest major US city
+
+???
+This was just a quick grab for some measurable and possibly related numbers so I could start building the analysis apparatus around _something_.  I had initially hoped to do some more interesting content analysis (wordnet), but quickly decided that would be a lot of work on something that would be off goal.  Like, I implimented a search of great-circle distances to top US cities and in the end don't think it added much "data analysis".
+
+I would stick with these properties, (with some logarithmic adjustments down the road) adding "Age of posting account at time of post" near the end.
+
+Choosing/examining goodness of data: see next slide
+
+---
+Initial scatterplots highlighting problems
+
+.fitimg[
+![Scatter 1](scatter1.png)
+![Scatter 2](scatter2.png)
+![Scatter 3](scatter3.png)
+]
+
+???
+Some of my first plots. Done with gonum plotting library
+
+Initial scatterplots of the data did their job: they showed problems!
+
+1. Huge outliers: 120STD followers!!! (Carmilla Cabello)
+2. Nonsensical data: bug in distance calculations (twitter uses Long, Lat)
+3. Uninteresting plots; words and links don't have much room to vary on a plot
 
 ---
 layout: true
-s1:.unselect
-s2:.unselect
-s3:.unselect
-s4:.unselect
-## Project Overview
 
-.grey[
-* <span class={{s1}}>Choose Data</span>
-* <span class={{s2}}>Collect Data</span>
-* <span class={{s3}}>Analyze Data</span>
-* <span class={{s4}}>Visualize Analysis</span>
+## Development of Analysis
+
+.topbox[
+* Processing the data
+* Examining model operation
+* Improving visual feedback
 ]
 ---
-s1:select
-s2:unselect
-s3:unselect
-s4:unselect
-
-Twitter API Docs: 
-
-https://dev.twitter.com/streaming/public
+class: center, middle
 
 ???
-First: explain we're doing a broad overview; big picture choices
-
-I wanted a data set that was personally motivating.  
-* I have been working with English Parsing
-* Lots of associated data
-* Twitter is socially relevant
-
-The particular variables considered changed over the course of the project, the main idea was that there would be _something_ interesting.
+So, once some data was collected, some analysis were run and some plots made, I had something that worked!  The next step was to make it all _useful_.
 ---
-s2:select
-s1:unselect
-s3:unselect
-s4:unselect
-
-Open source Go-lang Twitter API library: 
-
-https://github.com/dghubble/go-twitter/twitter
-???
-I used Go because given the short time frame of this project I always sought the tools I was most familiar with.
-
-I quickly had a program monitoring and saving data to disk.  Not being sure what I'd use, I saved some vital stats and the word content of the tweets, to be processed later.
-
----
-s3:select
-s1:unselect
-s2:unselect
-s4:unselect
-
-Open source matrix library (Golang backed by FORTRAN): 
-
-https://github.com/gonum/matrix
+title: hist_before
+![Hist Followers Before](hist_bad_followers.png)
+![Hist Tweets Before](hist_bad_tweet.png)
 
 ???
-From the start I knew I wanted to perform a Multiple Linear Regression, the famous statistical technique that drives all the fans wild.
+Histograms to better see a problem with outliers.  My first thoughts were robots and/or celebrities might be behaving quite differently from normal people, and maybe I could "filter out" them and make this an analysis only about humans.
 
-Ideas like exploring confounded variables, controlling for effects, all were things I've encountered non-mathematically before, and so wanted to know more.
-
+Apologies to Stephen Fry and his 13 million followers, but >240 is too many standard deviations.
 ---
-s4:select
-s1:unselect
-s2:unselect
-s3:unselect
+title: hist_after
+![Hist Followers After](hist_good_followers.png)
+![Hist Tweets After](hist_good_tweet.png)
 
-.center[![Visualization](img/visualize.png)]
 ???
+Some testing showed actually interesting histograms when filtering under 20,000 tweets and 2,000(!) followers.  More sophisticated filtering might have used tweets/day average instead.
 
+We go from 1.1mil samples to 850k samples, which seems fine.
+---
+![Hist Age Before](hist_bad_age.png)
+![Hist Age After](hist_good_age.png)
+???
+As a check, I looked at histograms of the other properties to see if their distribution was drastically changed by this filter, and saw no huge changes to the general shapes.  Shown here is "Age of account"
+---
+![Scatter Before](scatter_before.png)
+![Scatter After](scatter_after.png)
+???
+And the scatterplot is transformed to have some variability that we can analyze now!  A few outliers won't control the path of our fit.
 
+This chart is overplotted, a problem I tackle later
+---
 
+Initial R<sup>2</sup> = 0.002
+<br>
+"Humans Filter" R<sup>2</sup> = 0.174
+<br>
+Power Law R<sup>2</sup> = 0.296
 
+???
+Using different combinations of our variables, and different kinds of manipulations (such as filtering), I examine the R<sup>2</sup> of different fits, while using the scatterplots to check for strange behaviors.
 
+MeanSqResiduals 0.998   0.826   0.704
 
+Here we see Power Law R2: Discussion next slide
+---
 
+![Hist Followers Power](hist_power_followers.png)
+![Hist Tweets Power](hist_power_tweet.png)
 
+???
+These graphs are what really sold me on using the natural logarithm for tweetcount and followers: such nice bell-shaped curves!  Even my human filter curve was lopsided.
+
+I eye that bump at the end of the tweetcounts curve and again grumble in my mind about robots, but this way at least Stephen Fry gets to be part of my data set again.
 
 ---
-layout:false
-## Data Analysis of Twitter Behaviors
 
-.biggen[
-* Data Collection
-* Descriptive Analysis
-* Predictive Analysis
-]
+* Number of followers  ==> ln(x)
+* Tweet count          ==> ln(x)
+* Number of words used
+* Number of links used
+* Distance from nearest major US city (top 100)    ==> Cut!
+* Population of nearest major US city ==> ln(x)
+* Age of Account ==> Added
 
+???
+So, the real development of our model is here, in what variables we are including in our regression.  The distance variable turned out to have a low correlation with popularity, and it's inclusion/removal did not change the other coefficients much, so for the sake of simplicity it was removed.
+
+The bulk of my work here has been building the tooling, for data acquisition, processing, modeling, and presentation.  I think with all that tooling now in place, were I to put an equal amount of work in, most of it would be in searching out more varied sets of variables among the data.
+
+More on wish listing later
+
+---
+
+```go
+LnFollowers Mean: 6.011637, STD: 1.398575
+Links Mean: 0.997370, STD: 0.389061
+Words Mean: 13.580750, STD: 3.966365
+LnTweetCount Mean: 7.941631, STD: 2.408930
+LnPopulation Mean: 13.502904, STD: 1.033709
+Age(days) Mean: 2101.801189, STD: 828.125819
+
+LnFollowers = (0.000000) + (0.160706)[Links] + (0.110461)[Words] +
+(0.439769)[LnTweetCount] + (0.040290)[LnPopulation] + 
+(0.327982)[Age(days)]
+
+MeanSqError: 0.704020, MeanSquareResiduals: 0.704017, R^2: 0.295982
+```
+
+???
+So here's our linear regression equation, with some associated stats.
+
+Location statistics were not good predictors of popularity.  Tweetcount was the best, age of account was close second, and both using links and wordiness were close to each other as mild predictors.
 ---
 layout:true
-name: data_collect
-ft: 
+class: center, middle
+---
+![Words Vs Followers](fnl_words.png)
+???
+Okay, let's look at some pictures.  To combat overplotting (n: 1.6mil!) I've decreased the dot size to a speck, and dropped the alpha to 3(!)
 
-## Data Collection
-The Twitter "Sample" api provides a stream of randomly selected live tweets.<sup>1</sup> {{ content }}
+Jittering might be a good idea for words/links/population
 
-.footer[
-1: https://dev.twitter.com/streaming/public
-{{ ft }}
+Regression line for each plot is holding all other vars at their mean (zero).
+---
+![Links Vs Followers](fnl_links.png)
+---
+![LnPopulation Vs Followers](fnl_pop.png)
+???
+Population is pretty discrete: only 100 cities included.  1000 avail, but take a long time (distance calc).
+
+I think the _lack_ of a relation here is actually interesting.
+---
+![Age Vs Followers](fnl_age.png)
+???
+The age graph has one of the most interesting anomalies: the dense cloud right around 1stD age.  Who are they?
+---
+![Tweets Vs Followers](fnl_tweets.png)
+???
+Here it almost looks like there's three separate groups, the cloud and the two spikes.
+
+Maybe some color-coding of these dots for other vars would help determine if the anomalies had some other pattern
+---
+layout: false
+class: center, middle
+
+## Potential Improvements
+
+.topbox[
+* Use R's calculating and plotting tools
+* Calculate/plot confidence intervals for regression coefficients
+* Include hypothesis testing, discussion of effect of variable inclusions on errors
+* Use content analysis to provide more properties to analyze
+* Try more varied property sets to find more interesting relations
+* Explore varied plotting approaches
 ]
----
-The Twitter api was accessed using an open-source api-library.<sup>2</sup>
-1. Filter
-2. Timespan
-3. Variables Measured
+???
+Improvement Opportunities?  These are all things I basically half-did, but couldn't complete in time
+
+R: Reinventing the wheel sounded cooler before I saw how awesome R's wheels are.  I have since added the ability to format my data to load into R.
+
+Confidence intervals: I spent 7 hours going through Stats 414-415 trying to get this concept down.  I got it for simple LR, but hit a wall at Stat501 
+
+se(y) = sqrt(MSE(Xht (Xt X)-1 Xh)).  Other lectures: "Use R to calculate this se(y).... -_-
+
+Content analysis: wordnet is cool!  Noun/verb identification is hard
+
+I saw a bunch of cool charts in plotting tools/walkthroughs, but didn't really have time to grok them sufficietly.
 
 ---
-
-### Filter
-* Tagged "English"
-* Not a "retweet"
-* Has geographic coordinate data
-* Located within the continental United States
-
----
-
-### Timespan
-
-* Dec 2nd, 2016 to Dec XX, 2016
-* Roughly 2 tweets a second
-* Sporadic outages in collection
-* Total collected: XXXX (>1mil)
-
----
-
-### Variables Measured
-
-Stored in CSV format on disk for later parsing/analysis
-* User Numeric ID
-* User Creation Date
-* User Follower Count
-* User Friend Count
-* User Tweet Count
-
-
-* Time of Tweet
-* Location of Tweet
-* Number of links in Tweet Content
-* Copy of non-link words in Tweet Content
-
----
-layout:false
-class: middle
-.center[
-## Data Collection Q & A
+class: center, middle
+# Q & A
+.topbox[
+* Eric Sorell
+<br>
+* Project source code available at https://github.com/sore0159/data_analysis
 ]
-```go
-	filterParams := &twitter.StreamFilterParams{
-		Language: []string{"en"},
-		// These coords should bound the continential United States
-		Locations:     []string{"-124.85,24.39,-66.88,49.38"},
-		StallWarnings: twitter.Bool(true),
-	}
-    
-```
 
----
+???
+Even the source for this presentation itself!
 
-## Descriptive Analysis
-
-1. Augmenting Data
-  * Location in relation to major US cities
-  * Content Word Count
-2. Examination Methods
-  * Normalization
-  * Covariance Matrices
-  * Scatterplots
-3. Examination Summary
-  * Lots of Noisy Data
-
----
-## Augmenting Data
-### Location
-
-Using a listing of geographic coordinates and population count of the top 1000 US cities<sup>3</sup>, I compared each tweet to the top 100 most populous cities and selected the closest city, taking note of it's population and the distance the tweet was from it's center.
-
-### Content Word Count
-
-Content "words" are whitespace-separated UTF-8 sequences that are not prefixed by http:// or https:// (which are counted as 'links' instead).
-
-.footer[ 3: https://gist.github.com/Miserlou/c5cd8364bf9b2420bb29 ]
----
-
-## Examination Methods
-### Normalization
-Variable measurements were normalized to (X-m)/std, and so all sample sets have a mean of 0 and std/variance of 1
-
-### Covariance Matrices & Scatterplots
-In search of linear relationships, I calculated covariance matrices of variable sets and chart all variables against each other with scatterplots using open source statistics and plotting libraries<sup>4</sup>.
-
-.footer[ 4: https://github.com/gonum/stat ]
----
-### Image Test
-.center[![Sample Image](img/sample.png)]
----
-class: middle
-.center[
-## Descriptive Analysis Q & A
-]
-```go
-    
-```
----
-
-## Predictive Analysis
-
-1. Multivariable Linear Regression
-  * Ordinary Least Squares Fit
-  * Algorithm Concerns
-2. Something else
-  * A
-  * B
-
----
-class: middle
-.center[
-## Predictive Analysis Q & A
-## General Q & A
-]
-```go
-    
-```

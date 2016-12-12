@@ -22,25 +22,15 @@ a {
         position: absolute;
         bottom: 15px;
 }
-.biggen {
-        font-size: x-large;
-        margin:0px;padding:0px;
-}
-.select {
-        color: #000000;
-        font-weight: bold;
-        font-size: x-large;
-}
-.unselect {
-        color: #888899;
-}
-.grey {
+.topbox {
         background-color: #EEEEFF;
         padding: 1px 0px;
         margin-top: 5px;
-        margin-bottom: 10px;
+        margin-bottom: 50px;
         border-radius: 15px;
+        text-align: left;
 }
-sup {
-        color: #0000FF;
+.fitimg{
+        margin:0;
+        margin-left:-30px;
 }

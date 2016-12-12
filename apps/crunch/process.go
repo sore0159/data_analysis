@@ -22,6 +22,9 @@ func (d *Data) ProcessTweets(tws []tw.TweetData) (maths.Vars, error) {
 	}
 	data := make([]float64, len(vars))
 	for _, t := range tws {
+		//if t.Followers > 2000 || t.TweetCount > 20000 {
+		//continue
+		//}
 		// I guess twitter coords are (Long, Lat) instead of (Lat, Long)
 		ct, dist := d.C.Closest([2]float64{t.Location[1], t.Location[0]})
 		_ = dist

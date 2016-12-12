@@ -38,6 +38,15 @@ func main() {
 
 	log.Println("Calculating covariance matrix...")
 	mat := vars.Matrix()
+	if cfg.MatrixStore {
+		log.Println("Storing matrix...")
+		err = StoreProcessed(cfg, mat)
+		if err != nil {
+			log.Println("Error storing processed: ", err)
+			return
+		}
+		log.Println("Matrix stored!")
+	}
 	cov := maths.Cov(mat)
 	DispCov(cfg, vars, cov)
 	err = TestReg(cfg, vars)

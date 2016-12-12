@@ -12,11 +12,12 @@ type Config struct {
 	DataDir string
 	Output  io.Writer
 
-	DoReg     bool
-	DoHist    bool
-	DoScatter bool
-	Log       bool
-	Tiny      bool
+	DoReg       bool
+	DoHist      bool
+	DoScatter   bool
+	Log         bool
+	Tiny        bool
+	MatrixStore bool
 }
 
 func GetConfig() (c Config) {
@@ -47,6 +48,8 @@ func GetConfig() (c Config) {
 				c.Log = true
 			case 't':
 				c.Tiny = true
+			case 'm':
+				c.MatrixStore = true
 			case '-':
 			default:
 				unused = append(unused, string(cr))
@@ -73,7 +76,7 @@ func GetConfig() (c Config) {
 
 func DispCfg(c Config) {
 	fmt.Printf("Using data dir %s\n", c.DataDir)
-	if c.DoReg || c.DoHist || c.DoScatter {
+	if c.DoReg || c.DoHist || c.DoScatter || c.MatrixStore {
 		parts := make([]string, 0, 2)
 		if c.DoReg {
 			parts = append(parts, "linear regression calculations")
@@ -83,6 +86,9 @@ func DispCfg(c Config) {
 		}
 		if c.DoScatter {
 			parts = append(parts, "scatter plots")
+		}
+		if c.MatrixStore {
+			parts = append(parts, "matrix storing")
 		}
 		fmt.Printf("Performing: %s\n", strings.Join(parts, ", "))
 	} else {

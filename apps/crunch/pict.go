@@ -28,7 +28,7 @@ func ScatterPng(c Config, vX, vY *maths.Var, lns [][2]float64) error {
 	} else if n < 1000000 {
 		alpha = 10
 	} else {
-		alpha = 2
+		alpha = 3
 	}
 	fName := c.DataDir + "img/" + FileName("scatter", "png", vX, vY)
 	f, err := os.Create(fName)
