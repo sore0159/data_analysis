@@ -10,6 +10,8 @@ import (
 
 // R code for loading this result:
 // A <- matrix(scan("matrix.dat", n = 1644590*6), 1644590, 6, byrow = TRUE)
+// dat <- data.frame(A)
+// y <- lm(V1 ~ . -1, data=dat)
 func StoreProcessed(cfg Config, mat *mat64.Dense) error {
 	f, err := os.Create(cfg.DataDir + "matrix.dat")
 	if err != nil {
