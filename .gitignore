@@ -8,6 +8,7 @@
 *json
 *.dat
 *.sh
+*.pdf
 *.Rhistory
 *.RData
 SECRET*

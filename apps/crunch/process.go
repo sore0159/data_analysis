@@ -13,9 +13,8 @@ func (d *Data) ProcessTweets(tws []tw.TweetData) (maths.Vars, error) {
 		maths.NewVar("Links"),
 		maths.NewVar("Words"),
 		maths.NewVar("LnTweetCount"),
-		//maths.NewVar("LnDist"),
 		maths.NewVar("LnPopulation"),
-		maths.NewVar("Age(days)"),
+		maths.NewVar("DayAge"),
 	)
 	for _, v := range vars {
 		v.Data = make([]float64, 0, len(tws))

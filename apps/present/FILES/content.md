@@ -226,6 +226,26 @@ So here's our linear regression equation, with some associated stats.
 
 Location statistics were not good predictors of popularity.  Tweetcount was the best, age of account was close second, and both using links and wordiness were close to each other as mild predictors.
 ---
+
+```r
+// X1 = ("LnFollowers")
+    Estimate   Std. Error   t value Pr(>|t|)
+X2 0.1607064 0.0006834654 235.13464        0 // ("Links")
+X3 0.1104606 0.0006731273 164.10066        0 // ("Words")
+X4 0.4397685 0.0006947700 632.96998        0 // ("LnTweetCount")
+X5 0.0402905 0.0006583052  61.20337        0 // ("LnPopulation")
+X6 0.3279818 0.0006649358 493.25341        0 // ("DayAge")
+
+```
+
+???
+OK, so last minute I imported the data and started poking at R's utilities.  I didn't get any good plots out of it, as I think the confidence intervals might have been too small to appear on the charts.
+
+But I did get these T-statistics and p values (2 tailed), which actually look pretty good!  We can see again that LnPop is not as good as the rest, though still looking okay.
+
+Test is against null hypothesis, B_i = 0, so our numbers aren't confirmed, but we have a good idea there is indeed some linear relations between these properties.
+
+---
 layout:true
 class: center, middle
 ---
@@ -255,15 +275,19 @@ Here it almost looks like there's three separate groups, the cloud and the two s
 
 Maybe some color-coding of these dots for other vars would help determine if the anomalies had some other pattern
 ---
+![Followers Vs Residuals](fnl_resids.png)
+???
+Lastly, a residual check for anomalies.  Looks pretty linear with a good amount of variation.
+---
 layout: false
 class: center, middle
 
 ## Potential Improvements
 
 .topbox[
-* Use R's calculating and plotting tools
-* Calculate/plot confidence intervals for regression coefficients
-* Include hypothesis testing, discussion of effect of variable inclusions on errors
+* More robust use of R's calculating and plotting tools
+* Calculation/plotting of confidence intervals for regression coefficients
+* Deeper examination of hypothesis testing, discussion of effect of variable inclusions on errors
 * Use content analysis to provide more properties to analyze
 * Try more varied property sets to find more interesting relations
 * Explore varied plotting approaches
@@ -276,6 +300,9 @@ R: Reinventing the wheel sounded cooler before I saw how awesome R's wheels are.
 Confidence intervals: I spent 7 hours going through Stats 414-415 trying to get this concept down.  I got it for simple LR, but hit a wall at Stat501 
 
 se(y) = sqrt(MSE(Xht (Xt X)-1 Xh)).  Other lectures: "Use R to calculate this se(y).... -_-
+
+
+HEY!  Since then, we've actually starting using R a bit, and gotten some p values!  Might leverage them into confidence intervals
 
 Content analysis: wordnet is cool!  Noun/verb identification is hard
 
