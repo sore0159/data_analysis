@@ -4,22 +4,21 @@ class: center, middle
 Eric Sorell, Dec 2016
 
 ???
-Minimalism
 
-Introduce yourself.
-* Eric Sorell
-* Bachelors In Science, Mathematics (abstract algebra focus)
+Hello, my name is Eric Sorell, and I'm here to present on my Data Analysis project.   This will be about 30 minutes, with Q&A afterward, but please feel free to ask questions at any time.
 
 ---
 class: center, middle
 ## Project Objective
 
 ???
-Introduce the project.
-* "Do Some Interesting Data Analysis"
-* 30 minutes + 30min Q&A
-* Start to finish, 2 weeks
-* Demonstrate ability to explain ideas to clients.
+
+I have a bachelors in mathematics with a focus on abstract algebra, so while I have a foundation of probability theory, statistical modeling is all new material.  This was a two week project from first concept to final presentation.
+
+I hope with this project to demonstrate my ability to learn whatever material is required for whatever tasks are needed.  As a major job role is to be the explanation of our work to clients, I have focused on using techniques and tools I fully understand and can explain, avoiding more complex tools that I _couldn't_ explain.
+
+I do not intend to present to _you_ as though you were clients, but if you would like any aspect of the project explained as though you were, please let me know.
+
 ---
 layout: true
 
@@ -34,7 +33,9 @@ layout: true
 class: center, middle
 
 ???
-I had some ideas right off the bat, and structured the project around those ideas, so let's cover those ideas and that structure.
+
+The structure of this project was determined by my initial approach to it.  "Do some interesting Data Analysis", was my instruction.  I selected my data collection, analysis, and presentation on those terms.
+
 ---
 
 Twitter provides lots of data to developers with an API accessible via various open source libraries.
@@ -43,17 +44,22 @@ https://dev.twitter.com/streaming/public
 <br>
 https://github.com/dghubble/go-twitter/twitter
 
-Filter used:
+Tweet Filter used:
 * Not a Retweet
+* English language
 * Geographic coordinates provided
 * Located within the continental US
-* English language
-???
-I quickly set up a program to monitor and record the stream of tweets.
 
-Not all tweets, 'random sample' that matches a filter
+???
+
+Knowing I wanted to use data on the properties of tweets, I quickly set up a program to monitor and record a constant stream of tweets.  Twitter provides a few developer APIs for this purpose, broadcasting a "random sample" of tweets as they happen.
+
+I had this program running at all hours of the day, not wishing to bias any particular time period.  There were one or two outages of a few hours, but over a weeks worth of content was recorded; over 1.5 million tweets.
+
+I used an initial filter of my own, knowing that I wanted to use geographic location and content as potential data to analyze.  
 
 ---
+
 Information monitored and recorded:
 * Tweet geographic coordinates
 * Tweet post date
@@ -65,24 +71,24 @@ Information monitored and recorded:
 * Poster Tweet count
 
 ???
-Recording went from a few days after the project's start, to a few days before it's end.  There were one or two outages for a few hours, but basically a little over a week's worth of tweets were collected (1644590 tweets).
 
-Samples of various sizes of this data were used during the development of the analysis phase; final analysis numbers and plots used the whole dataset.
-
-I didn't know exactly _what_ I wanted to analyse, hence 'development of analysis'.  Lots of ways to process this data.
+I recorded a wide range of properties of each tweet, but by no means everything.  Twitter provides a _lot_ of data attached to each tweet.  I tried to pick what I thought would be a good base to allow for more complicated processing and analysis down the line.
 
 ---
 Initial Goals for Multiple Linear Regression:
-* Find some interesting relationships between properties of the data
+* Find some relationships between properties of the data
 * Demonstrate 'controlling for confounding variables'
 * Make some predictions
 
 ???
+
 I was able to get my code running multiple linear regressions pretty easily.  Go has a dedicated team of scientists who have put together (and still work on) a good set of libraries for data analysis, matrix math.
+## SCRIPT REVISION PROGRESS MARKER HERE ##
 
 It was no "x <-lm(data~.)", though.  I've never used R before so I used Go for this project, to stay on familiar ground, but after watching several stats lectures where they just wave R at the problem and it falls over, I have grown jealous.
 
 Value in this investigation: gaining an appreciation for different numerical methods for handling various stats concepts.  Having to code dive to see if I'm using a Gram-Schimdt or a Householder QR decomposition, and why it matters (numerical stability), was a learning experience.
+
 ---
 Examination of different properties of the data for linear relationships focused on:
 * Number of followers
@@ -160,7 +166,7 @@ As a check, I looked at histograms of the other properties to see if their distr
 ![Scatter Before](scatter_before.png)
 ![Scatter After](scatter_after.png)
 ???
-And the scatterplot is transformed to have some variability that we can analyze now!  A few outliers won't control the path of our fit.
+And the scatterplot is transformed to have some variability that I can analyze now!  A few outliers won't control the path of my fit.
 
 This chart is overplotted, a problem I tackle later
 ---
@@ -172,7 +178,7 @@ Initial R<sup>2</sup> = 0.002
 Power Law R<sup>2</sup> = 0.296
 
 ???
-Using different combinations of our variables, and different kinds of manipulations (such as filtering), I examine the R<sup>2</sup> of different fits, while using the scatterplots to check for strange behaviors.
+Using different combinations of the variables, and different kinds of manipulations (such as filtering), I examine the R<sup>2</sup> of different fits, while using the scatterplots to check for strange behaviors.
 
 MeanSqResiduals 0.998   0.826   0.704
 
@@ -198,12 +204,28 @@ I eye that bump at the end of the tweetcounts curve and again grumble in my mind
 * Age of Account ==> Added
 
 ???
-So, the real development of our model is here, in what variables we are including in our regression.  The distance variable turned out to have a low correlation with popularity, and it's inclusion/removal did not change the other coefficients much, so for the sake of simplicity it was removed.
+So, the real development of the model is here, in what variables we are including in the regression.  The distance variable turned out to have a low correlation with popularity, and it's inclusion/removal did not change the other coefficients much, so for the sake of simplicity it was removed.
 
 The bulk of my work here has been building the tooling, for data acquisition, processing, modeling, and presentation.  I think with all that tooling now in place, were I to put an equal amount of work in, most of it would be in searching out more varied sets of variables among the data.
 
 More on wish listing later
+---
+layout: false
+class: center, middle
+![Followers Vs Residuals](fnl_resids.png)
 
+???
+To solve overplotting in my scatterplots, I set a very small dot size, and set each data point to be very transparent (alpha of 3!).  The exact alpha to set seems to be very dependent on how clustered the data is: for 1.6mil points it had to be very low.
+
+Lastly, a residual check for anomalies.  Looks pretty linear with a good amount of variation.
+
+For data plots, I include regression lines and wanted to include confidence intervals but had some technical issues with that. 
+---
+layout: true
+
+## Summary of The Results
+---
+class: middle, center
 ---
 
 ```go
@@ -222,7 +244,7 @@ MeanSqError: 0.704020, MeanSquareResiduals: 0.704017, R^2: 0.295982
 ```
 
 ???
-So here's our linear regression equation, with some associated stats.
+So here's the linear regression equation, with some associated stats.
 
 Location statistics were not good predictors of popularity.  Tweetcount was the best, age of account was close second, and both using links and wordiness were close to each other as mild predictors.
 ---
@@ -243,7 +265,7 @@ OK, so last minute I imported the data and started poking at R's utilities.  I d
 
 But I did get these T-statistics and p values (2 tailed), which actually look pretty good!  We can see again that LnPop is not as good as the rest, though still looking okay.
 
-Test is against null hypothesis, B_i = 0, so our numbers aren't confirmed, but we have a good idea there is indeed some linear relations between these properties.
+Test is against null hypothesis, B_i = 0, so the numbers aren't confirmed, but we have a good idea there is indeed some linear relations between these properties.
 
 ---
 layout:true
@@ -274,10 +296,6 @@ The age graph has one of the most interesting anomalies: the dense cloud right a
 Here it almost looks like there's three separate groups, the cloud and the two spikes.
 
 Maybe some color-coding of these dots for other vars would help determine if the anomalies had some other pattern
----
-![Followers Vs Residuals](fnl_resids.png)
-???
-Lastly, a residual check for anomalies.  Looks pretty linear with a good amount of variation.
 ---
 layout: false
 class: center, middle
