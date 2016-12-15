@@ -212,7 +212,9 @@ I used the R Squared of the regressions to get a general idea of the fit while k
 
 The R Squared of the initial variable set was very low, but with a "humans filter" it shot up to .174  This is still a low percentage of variability explained by the model, but given the noisy nature of twitter behavior, I'm happy with this improvement.
 
-Further exploration led to even better results in both fits and data distributions.  A few properties I suspected might reasonably grow in proportion to their size, and the model behaved quite nicely when replacing them with their logarithm.
+Testing filtering a sample to only include each account once led to a drastic reduction of sample size by three fourths.  In the end, I wanted to keep this model a prediction of tweets, not users, and so did not use such a filter.
+
+Further exploration led to even better results in both fits and data distributions.
 
 (MeanSqResiduals 0.998   0.826   0.704)
 
@@ -223,9 +225,11 @@ Further exploration led to even better results in both fits and data distributio
 
 ???
 
-Followers and Post Count specifically have much more normal distributions when we take their logarithm.  I opted to use this transformation instead of filtering the data because I did not have a reasonable method to make a non-arbitrary filter for the data.  Perhaps robots really should be removed from this analysis (I suspect that bump at the end of the post count chart is due to robot activity), but I can't yet do so without losing (in a biased fashion) a lot of real data.
+Followers and Post Count specifically have much more normal distributions when we take their logarithm.  
 
-I think that post count being approximately log-normally distributed is related to high volume posters being more likely to be collected as data points.  Testing filtering a sample to only include each account once led to a drastic reduction of sample size by three fourths.  In the end, I wanted to keep this model a prediction of tweets, not users, and so did not use such a filter.
+###EXPLANATION OF LOG-NORMAL DISTRIBUTION GOES HERE
+
+I opted to use this transformation instead of filtering the data because I did not have a reasonable method to make a non-arbitrary filter for the data.  Perhaps robots really should be removed from this analysis (I suspect that bump at the end of the post count chart is due to robot activity), but I can't yet do so without losing (in a biased fashion) a lot of real data.
 
 ---
 
