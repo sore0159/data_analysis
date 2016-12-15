@@ -10,7 +10,8 @@ This repository is an assemblage of the various bits of programming put together
 * [Present](https://github.com/sore0159/data_analysis/tree/master/apps/present/)
     A slideshow app to present the project.  Basically a local http server that serves markdown-based slideshow using remark.js
 
-* [Presentation Content](https://github.com/sore0159/data_analysis/tree/master/apps/present/content.md)
+* [Presentation Content](https://github.com/sore0159/data_analysis/tree/master/apps/present/FILES/content.md)
+* [Presentation Content](./apps/present/FILES/content.md)
         The slides, in markdown form.  Slides broken up by lines, with "???" denoting the start of presenters notes for each slide.
 
 * [Tweet Stream](https://github.com/sore0159/data_analysis/tree/master/apps/tweet_stream)
