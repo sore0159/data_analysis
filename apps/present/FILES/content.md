@@ -29,6 +29,7 @@ layout: true
 * Multiple Linear Regressions are interesting, I'll do one of those
 * Scatterplots are interesting, I'll use them
 ]
+
 ---
 class: center, middle
 
@@ -82,12 +83,9 @@ Initial Goals for Multiple Linear Regression:
 
 ???
 
-I was able to get my code running multiple linear regressions pretty easily.  Go has a dedicated team of scientists who have put together (and still work on) a good set of libraries for data analysis, matrix math.
-## SCRIPT REVISION PROGRESS MARKER HERE ##
+There are lots of options for computing multiple linear regressions, from R to Excel spreadsheets.  I used a golang matrix library to solve the least-squares using QR decomposition, with the heavy computation backed by calls to FORTRAN for speed.  
 
-It was no "x <-lm(data~.)", though.  I've never used R before so I used Go for this project, to stay on familiar ground, but after watching several stats lectures where they just wave R at the problem and it falls over, I have grown jealous.
-
-Value in this investigation: gaining an appreciation for different numerical methods for handling various stats concepts.  Having to code dive to see if I'm using a Gram-Schimdt or a Householder QR decomposition, and why it matters (numerical stability), was a learning experience.
+In the case of linear regression, I expect "just have R do it" is a fine approach, but I wanted to keep the calculation as part of a larger program of data manipulation and transfer.  I saw value in understanding the constraints on the process different algorithms impose.
 
 ---
 Examination of different properties of the data for linear relationships focused on:
@@ -100,11 +98,14 @@ Examination of different properties of the data for linear relationships focused
 * Population of nearest major US city
 
 ???
-This was just a quick grab for some measurable and possibly related numbers so I could start building the analysis apparatus around _something_.  I had initially hoped to do some more interesting content analysis (wordnet), but quickly decided that would be a lot of work on something that would be off goal.  Like, I implimented a search of great-circle distances to top US cities and in the end don't think it added much "data analysis".
 
-I would stick with these properties, (with some logarithmic adjustments down the road) adding "Age of posting account at time of post" near the end.
+I quickly assembled a set of measurable and possibly related numbers so I could start building the analysis apparatus around _something_.  
 
-Choosing/examining goodness of data: see next slide
+For the dependent variable, I decided on the number of followers a user had at the time of posting.  As a quality of the post, this can be thought of as trying to predict how many eyes are going to see a post by relating other qualities of the post.
+
+The dependent variables were the amount of previous posts by the author, the number of words used in the post, the number of links used, and two qualities based on the geographical coordinates of the post.
+
+From a list of the top 100 major US cities I calculated the closest city to the post, then recorded the distance to and the population of that city.  
 
 ---
 Initial scatterplots highlighting problems
@@ -116,13 +117,14 @@ Initial scatterplots highlighting problems
 ]
 
 ???
-Some of my first plots. Done with gonum plotting library
 
-Initial scatterplots of the data did their job: they showed problems!
+Once I had some experimental data, I started exploring plots.  Scatterplots proved helpful in identifying issues with the data early on.  Here are three example plots.
 
-1. Huge outliers: 120STD followers!!! (Carmilla Cabello)
-2. Nonsensical data: bug in distance calculations (twitter uses Long, Lat)
-3. Uninteresting plots; words and links don't have much room to vary on a plot
+First, the data had huge outliers in both popularity and post count.  Most of the data here is clumped up near the axis, with barely visible data points taking up all the rest of the space.
+
+Second, nonsensical data.  Plots of population showed all data taking only two values, revealing that all posts were closest only to Miami or Honolulu.  This quickly led to a discovery of a bug in distance calculations: Twitter uses Longitude, Latitude for its coordinates instead of the normal Latitude, Longitude.
+
+Third, plots showed some issues with clumping of data on variables such as word count and link count.  
 
 ---
 layout: true
@@ -134,98 +136,133 @@ layout: true
 * Examining model operation
 * Improving visual feedback
 ]
+
 ---
 class: center, middle
 
 ???
-So, once some data was collected, some analysis were run and some plots made, I had something that worked!  The next step was to make it all _useful_.
+
+Once some data was collected, some analysis were run and some plots made, I had something that worked!  The next step was to make it all _useful_.
+
+I had initially hoped to do some more interesting content analysis (wordnet), but quickly decided that would be a lot of work without adding much analytical depth.
+
+I after some trial models with different variable sets, I added "Age of posting account at time of post" to the independent variables.
+
 ---
 title: hist_before
 ![Hist Followers Before](hist_bad_followers.png)
 ![Hist Tweets Before](hist_bad_tweet.png)
 
 ???
-Histograms to better see a problem with outliers.  My first thoughts were robots and/or celebrities might be behaving quite differently from normal people, and maybe I could "filter out" them and make this an analysis only about humans.
+
+To better explore the variables as I tried including different properties in the model, I used histograms of the variable distributions.  Shown here are histograms that show the outlier problem in more detail.
+
+For both post count and popularity, basically all of the data is very close to the mean.  Such outliers were obscuring any relationships in the bulk of the data in my regression fits, and so in order to fit these variables I sought some ways to process the data.
+
+Applying domain-specific knowledge, my estimate was that accounts with extraordinary post counts were likely different from normal accounts by being non-human.  Automated weather reports, job postings, and sales messages behave quite differently from someone who just wants to share a picture of his breakfast.
+
+Extraordinary follower counts, while likely the result of human activities, were likely due to non-twitter related factors.  Wanting to use the data I had to analyze the relationships in twitter behaviors of normal humans, I attempted to filter my data.
 
 Apologies to Stephen Fry and his 13 million followers, but >240 is too many standard deviations.
+
 ---
 title: hist_after
 ![Hist Followers After](hist_good_followers.png)
 ![Hist Tweets After](hist_good_tweet.png)
 
 ???
-Some testing showed actually interesting histograms when filtering under 20,000 tweets and 2,000(!) followers.  More sophisticated filtering might have used tweets/day average instead.
 
-We go from 1.1mil samples to 850k samples, which seems fine.
+Testing showed meaningful distribution change required filtering out accounts with over 20,000 tweets or 2,000 followers.  The filtered distributions are shown here.  More sophisticated filtering might have used tweets/day average instead and numerical comparisons of the distributions.
+
+The sample size goes from 1.1mil samples to 850k samples, which seems fine.
+
 ---
 ![Hist Age Before](hist_bad_age.png)
 ![Hist Age After](hist_good_age.png)
+
 ???
-As a check, I looked at histograms of the other properties to see if their distribution was drastically changed by this filter, and saw no huge changes to the general shapes.  Shown here is "Age of account"
+
+As a check, I looked at histograms of the other properties to see if their distributions were drastically changed by this filter and saw no huge changes to the general shapes.  Shown here is "Age of account"
+
 ---
 ![Scatter Before](scatter_before.png)
 ![Scatter After](scatter_after.png)
-???
-And the scatterplot is transformed to have some variability that I can analyze now!  A few outliers won't control the path of my fit.
 
-This chart is overplotted, a problem I tackle later
+???
+
+Before and after scatterplots of the post count against the follower count.  No linear relations jump out, but the data is no longer obviously dominated by a minority of the sample.
+
+This chart is overplotted, a problem I tackle later.
+
 ---
 
-Initial R<sup>2</sup> = 0.002
-<br>
-"Humans Filter" R<sup>2</sup> = 0.174
-<br>
-Power Law R<sup>2</sup> = 0.296
+```r
+Initial R^2 = 0.002
+
+"Humans Filter" R^2 = 0.174
+
+Power Law R^2 = 0.296
+```
 
 ???
-Using different combinations of the variables, and different kinds of manipulations (such as filtering), I examine the R<sup>2</sup> of different fits, while using the scatterplots to check for strange behaviors.
 
-MeanSqResiduals 0.998   0.826   0.704
+In addition to using histograms to analyze the effect of filters on sample distributions, I also examined the effect these changes to the sample sets had on the regressions.
 
-Here we see Power Law R2: Discussion next slide
+I used the R Squared of the regressions to get a general idea of the fit while keeping an eye on the graphs of the lines over the scatterplots to watch for problematic behavior.
+
+The R Squared of the initial variable set was very low, but with a "humans filter" it shot up to .174  This is still a low percentage of variability explained by the model, but given the noisy nature of twitter behavior, I'm happy with this improvement.
+
+Further exploration led to even better results in both fits and data distributions.  A few properties I suspected might reasonably grow in proportion to their size, and the model behaved quite nicely when replacing them with their logarithm.
+
+(MeanSqResiduals 0.998   0.826   0.704)
+
 ---
 
 ![Hist Followers Power](hist_power_followers.png)
 ![Hist Tweets Power](hist_power_tweet.png)
 
 ???
-These graphs are what really sold me on using the natural logarithm for tweetcount and followers: such nice bell-shaped curves!  Even my human filter curve was lopsided.
 
-I eye that bump at the end of the tweetcounts curve and again grumble in my mind about robots, but this way at least Stephen Fry gets to be part of my data set again.
+Followers and Post Count specifically have much more normal distributions when we take their logarithm.  I opted to use this transformation instead of filtering the data because I did not have a reasonable method to make a non-arbitrary filter for the data.  Perhaps robots really should be removed from this analysis (I suspect that bump at the end of the post count chart is due to robot activity), but I can't yet do so without losing (in a biased fashion) a lot of real data.
+
+I think that post count being approximately log-normally distributed is related to high volume posters being more likely to be collected as data points.  Testing filtering a sample to only include each account once led to a drastic reduction of sample size by three fourths.  In the end, I wanted to keep this model a prediction of tweets, not users, and so did not use such a filter.
 
 ---
 
-* Number of followers  ==> ln(x)
-* Tweet count          ==> ln(x)
+* Number of followers  --> ln(x)
+* Tweet count          --> ln(x)
 * Number of words used
 * Number of links used
-* Distance from nearest major US city (top 100)    ==> Cut!
-* Population of nearest major US city ==> ln(x)
-* Age of Account ==> Added
+* Distance from nearest major US city (top 100)    --> Cut!
+* Population of nearest major US city --> ln(x)
+* Age of Account --> Added
 
 ???
+
 So, the real development of the model is here, in what variables we are including in the regression.  The distance variable turned out to have a low correlation with popularity, and it's inclusion/removal did not change the other coefficients much, so for the sake of simplicity it was removed.
 
 The bulk of my work here has been building the tooling, for data acquisition, processing, modeling, and presentation.  I think with all that tooling now in place, were I to put an equal amount of work in, most of it would be in searching out more varied sets of variables among the data.
 
-More on wish listing later
 ---
 layout: false
 class: center, middle
 ![Followers Vs Residuals](fnl_resids.png)
 
 ???
+
 To solve overplotting in my scatterplots, I set a very small dot size, and set each data point to be very transparent (alpha of 3!).  The exact alpha to set seems to be very dependent on how clustered the data is: for 1.6mil points it had to be very low.
 
-Lastly, a residual check for anomalies.  Looks pretty linear with a good amount of variation.
+Shown here is an example of my residual checks for anomalies.  Looks pretty linear with a good amount of variation.
 
 For data plots, I include regression lines and wanted to include confidence intervals but had some technical issues with that. 
+
 ---
 layout: true
 
-## Summary of The Results
+## Summary of the Results
 ---
 class: middle, center
+
 ---
 
 ```go
@@ -247,6 +284,7 @@ MeanSqError: 0.704020, MeanSquareResiduals: 0.704017, R^2: 0.295982
 So here's the linear regression equation, with some associated stats.
 
 Location statistics were not good predictors of popularity.  Tweetcount was the best, age of account was close second, and both using links and wordiness were close to each other as mild predictors.
+
 ---
 
 ```r
@@ -273,34 +311,43 @@ class: center, middle
 ---
 ![Words Vs Followers](fnl_words.png)
 ???
-Okay, let's look at some pictures.  To combat overplotting (n: 1.6mil!) I've decreased the dot size to a speck, and dropped the alpha to 3(!)
+Okay, let's look at some pictures.
 
 Jittering might be a good idea for words/links/population
 
 Regression line for each plot is holding all other vars at their mean (zero).
+
 ---
 ![Links Vs Followers](fnl_links.png)
+
+???
+
+Nothing too interesting with the word count or link count regressions.
+
 ---
 ![LnPopulation Vs Followers](fnl_pop.png)
 ???
 Population is pretty discrete: only 100 cities included.  1000 avail, but take a long time (distance calc).
 
 I think the _lack_ of a relation here is actually interesting.
+
 ---
 ![Age Vs Followers](fnl_age.png)
 ???
 The age graph has one of the most interesting anomalies: the dense cloud right around 1stD age.  Who are they?
+
 ---
 ![Tweets Vs Followers](fnl_tweets.png)
 ???
 Here it almost looks like there's three separate groups, the cloud and the two spikes.
 
 Maybe some color-coding of these dots for other vars would help determine if the anomalies had some other pattern
+
 ---
 layout: false
 class: center, middle
 
-## Potential Improvements
+## Further Analysis
 
 .topbox[
 * More robust use of R's calculating and plotting tools
@@ -311,7 +358,7 @@ class: center, middle
 * Explore varied plotting approaches
 ]
 ???
-Improvement Opportunities?  These are all things I basically half-did, but couldn't complete in time
+These are all things I basically half-did, but couldn't complete in time
 
 R: Reinventing the wheel sounded cooler before I saw how awesome R's wheels are.  I have since added the ability to format my data to load into R.
 
