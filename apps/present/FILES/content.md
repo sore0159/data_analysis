@@ -225,9 +225,9 @@ Further exploration led to even better results in both fits and data distributio
 
 ???
 
-Followers and Post Count specifically have much more normal distributions when we take their logarithm.  
+Followers and Post Count specifically have much more normal distributions when we take their logarithm.  This means our linear relations are now between the changes in those variables in proportion to their size: something to keep in mind when interpreting coefficients but straightforward algebra.
 
-###EXPLANATION OF LOG-NORMAL DISTRIBUTION GOES HERE
+// Further explanation?
 
 I opted to use this transformation instead of filtering the data because I did not have a reasonable method to make a non-arbitrary filter for the data.  Perhaps robots really should be removed from this analysis (I suspect that bump at the end of the post count chart is due to robot activity), but I can't yet do so without losing (in a biased fashion) a lot of real data.
 
